@@ -8,7 +8,6 @@ output: pdf_document
 ```{r}
 rm(list = ls())
 getwd()
-install.packages("BiocManager")
 library("BiocManager")
 BiocManager::install("flowCore", version = "3.8")
 BiocManager::install("ggcyto")
@@ -22,8 +21,8 @@ library("ggcyto")
 You can also embed plots, for example:
 
 ```{r}
-fcs_C1 <- flowCore::read.FCS(file = "../data/C1_Live-RSG+SA.fcs")
-fcs_B1 <- flowCore::read.FCS(file = "../data/B1_Live-RSG.fcs")
+fcs_C1 <- flowCore::read.FCS(file = "../data/C1_Live-RSG+SA.fcs", transformation = "scale")
+fcs_B1 <- flowCore::read.FCS(file = "../data/B1_Live-RSG.fcs", transformation = "scale")
 
 flow_C1 <- exprs(fcs_C1)
 flow_B1 <- exprs(fcs_B1)
@@ -51,6 +50,7 @@ plot.new()
 rac_C1 <- RAC(x = RSG_H_C1)
 rac_B1 <- RAC(x = RSG_H_B1)
 ranks_B1 <- as.vector(seq(1,length(rac_B1)))
+ranks_C1 <- as.vector(seq(1,length(rac_C1)))
 opar <- par(no.readonly = TRUE)
 par(mar = c(5,6,4,2)+0.1)
 plot(ranks_B1, log(rac_B1), type = 'p', axes = F, xlab = "Rank in activity", ylab = "", las = 1, cex.lab = 1.4, cex.axis = 1.25)
