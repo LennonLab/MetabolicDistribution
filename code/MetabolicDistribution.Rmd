@@ -1,0 +1,68 @@
+---
+title: "Metabolic_Distribution"
+author: "Emmi Mueller"
+date: "March 8, 2019"
+output: pdf_document
+---
+
+```{r}
+rm(list = ls())
+getwd()
+install.packages("BiocManager")
+library("BiocManager")
+BiocManager::install("flowCore", version = "3.8")
+BiocManager::install("ggcyto")
+library("flowCore")
+library("ggcyto")
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r}
+fcs_C1 <- flowCore::read.FCS(file = "../data/C1_Live-RSG+SA.fcs")
+fcs_B1 <- flowCore::read.FCS(file = "../data/B1_Live-RSG.fcs")
+
+flow_C1 <- exprs(fcs_C1)
+flow_B1 <- exprs(fcs_B1)
+
+RSG_H_C1 <- as.matrix(flow_C1[,"BL1-H"])
+RSG_H_B1 <- as.matrix(flow_B1[,"BL1-H"])
+
+```
+
+```{r}
+RAC <- function(x = ""){
+  x = as.vector(x)
+  x.ab = x[x >0]
+  x.ab.ranked = x.ab[order(x.ab, decreasing = TRUE)]
+  return(x.ab.ranked)
+}
+
+
+```
+
+
+```{r}
+plot.new()
+
+rac_C1 <- RAC(x = RSG_H_C1)
+rac_B1 <- RAC(x = RSG_H_B1)
+ranks_B1 <- as.vector(seq(1,length(rac_B1)))
+opar <- par(no.readonly = TRUE)
+par(mar = c(5,6,4,2)+0.1)
+plot(ranks_B1, log(rac_B1), type = 'p', axes = F, xlab = "Rank in activity", ylab = "", las = 1, cex.lab = 1.4, cex.axis = 1.25)
+mtext("log(RSG-H value)", side = 2, line = 3, cex.lab = 1.4)
+points(ranks_C1, log(rac_C1), type = 'p', col = "red")
+
+box()
+axis(side = 1, labels = T, cex.axis = 1.25)
+axis(side = 2, las = 1, cex.axis = 1.25)
+
+par <- opar
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
