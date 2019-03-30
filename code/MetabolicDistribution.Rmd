@@ -9,10 +9,9 @@ output: pdf_document
 rm(list = ls())
 getwd()
 library("BiocManager")
-BiocManager::install("flowCore", version = "3.8")
-BiocManager::install("ggcyto")
-library("flowCore")
-library("ggcyto")
+BiocManager::valid()
+BiocManager::install()
+library("vegan")
 
 ```
 
@@ -24,11 +23,11 @@ You can also embed plots, for example:
 fcs_C1 <- flowCore::read.FCS(file = "../data/C1_Live-RSG+SA.fcs", transformation = "scale")
 fcs_B1 <- flowCore::read.FCS(file = "../data/B1_Live-RSG.fcs", transformation = "scale")
 
-flow_C1 <- exprs(fcs_C1)
-flow_B1 <- exprs(fcs_B1)
+flow_C1 <- flowCore::exprs(fcs_C1)
+flow_B1 <- flowCore::exprs(fcs_B1)
 
-RSG_H_C1 <- as.matrix(flow_C1[,"BL1-H"])
-RSG_H_B1 <- as.matrix(flow_B1[,"BL1-H"])
+RSG_H_C1 <- as.data.frame(flow_C1[,"BL1-H"])
+RSG_H_B1 <- as.data.frame(flow_B1[,"BL1-H"])
 
 ```
 
@@ -64,5 +63,73 @@ axis(side = 2, las = 1, cex.axis = 1.25)
 par <- opar
 
 ```
+```{r}
+CDist <- function(x = ""){
+  x <- as.vector(x)
+  sum <- sum(x)
+  rank <- 1
+  total <- length(x)
+  cdist <- as.vector((x[1]/sum)*100)
+  Per <- as.vector((rank/total) * 100)
+  print(length(x))
+  print(length(cdist))
+  for(num in x){
+    rank <- rank + 1
+    x <- x[-1]
+    current <- cdist[length(cdist)] + ((x[1]/sum)*100)
+    Per <- c(Per, ((rank/total) *100))
+    cdist <- c(cdist, current)
+  }
+  ranked <- cbind(cdist, Per)
+  return(ranked)
+}
+```
 
+```{r}
+Cdist_C1 <- CDist(rac_C1)
+Cdist_B1 <- CDist(rac_B1)
+
+par(mar = c(5,5,4,1)+0.1, mfrow = c(1,2))
+
+plot(ranks_B1, log(rac_B1), type = 'p', axes = F, xlab = "Rank in activity", ylab = "", las = 1, cex.lab = 1.4, cex.axis = 1.25)
+mtext("log(RSG-H value)", side = 2, line = 3, cex = 1.4)
+points(ranks_C1, log(rac_C1), type = 'p', col = "red")
+
+box()
+axis(side = 1, labels = T, cex.axis = 1.25)
+axis(side = 2, las = 1, cex.axis = 1.25)
+
+par <- opar
+
+plot(Cdist_B1[,2],Cdist_B1[,1], type = 'p', axes = F, xlab = "", ylab = "", las = 1, cex.lab = 1.4, cex.axis = 1.25)
+mtext("% of rank-ordered cells \n contributing to activity", side = 1, line = 4, cex = 1.4)
+mtext("Cumulative % RSG activity", side = 2, line = 3, cex = 1.4)
+points(Cdist_C1[,2], Cdist_C1[,1], type = 'p', col = "red")
+
+box()
+axis(side = 1, labels = T, cex.axis = 1.25)
+axis(side = 2, las = 1, cex.axis = 1.25)
+
+par <- opar
+```
+```{r}
+fcs_C1 <- flowCore::read.FCS(file = "../data/C1_Live-RSG+SA.fcs")
+fcs_B1 <- flowCore::read.FCS(file = "../data/B1_Live-RSG.fcs")
+
+flow_C1 <- flowCore::exprs(fcs_C1)
+flow_B1 <- flowCore::exprs(fcs_B1)
+
+RSG_H_C1 <- as.data.frame(flow_C1[,"BL1-H"])
+RSG_H_B1 <- as.data.frame(flow_B1[,"BL1-H"])
+
+B1_fits <- as.data.frame(t(RSG_H_B1))
+C1_fits <- as.data.frame(t(RSG_H_C1))
+B1_RACfit <- radfit(B1_fits)
+B1_RACfit
+C1_RACfit <- radfit(C1_fits)
+C1_RACfit
+plot(B1_RACfit, las=1, cex.lab = 1.4, cex.axis = 1.25)
+plot(C1_RACfit, las = 1, cex.lab = 1.4, cex.axis = 1.25)
+
+```
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
