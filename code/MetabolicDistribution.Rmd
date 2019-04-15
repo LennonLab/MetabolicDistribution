@@ -5,6 +5,7 @@ date: "March 8, 2019"
 output: pdf_document
 ---
 
+#Require vegan, fitdistrplus, actuar, and BiocManager with flowFCS
 ```{r}
 rm(list = ls())
 getwd()
@@ -12,25 +13,12 @@ library("BiocManager")
 BiocManager::valid()
 BiocManager::install()
 library("vegan")
+library("fitdistrplus")
+library("actuar")
 
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r}
-fcs_C1 <- flowCore::read.FCS(file = "../data/C1_Live-RSG+SA.fcs", transformation = "scale")
-fcs_B1 <- flowCore::read.FCS(file = "../data/B1_Live-RSG.fcs", transformation = "scale")
-
-flow_C1 <- flowCore::exprs(fcs_C1)
-flow_B1 <- flowCore::exprs(fcs_B1)
-
-RSG_H_C1 <- as.data.frame(flow_C1[,"BL1-H"])
-RSG_H_B1 <- as.data.frame(flow_B1[,"BL1-H"])
-
-```
-
+#RAC function takes in a list of activity units and returns the list ranked
 ```{r}
 RAC <- function(x = ""){
   x = as.vector(x)
@@ -42,27 +30,25 @@ RAC <- function(x = ""){
 
 ```
 
-
+#process function takes in the name of a fcs file, channel to be saved, and scale and returns a ranked rank activity matrix
 ```{r}
-plot.new()
-
-rac_C1 <- RAC(x = RSG_H_C1)
-rac_B1 <- RAC(x = RSG_H_B1)
-ranks_B1 <- as.vector(seq(1,length(rac_B1)))
-ranks_C1 <- as.vector(seq(1,length(rac_C1)))
-opar <- par(no.readonly = TRUE)
-par(mar = c(5,6,4,2)+0.1)
-plot(ranks_B1, log(rac_B1), type = 'p', axes = F, xlab = "Rank in activity", ylab = "", las = 1, cex.lab = 1.4, cex.axis = 1.25)
-mtext("log(RSG-H value)", side = 2, line = 3, cex.lab = 1.4)
-points(ranks_C1, log(rac_C1), type = 'p', col = "red")
-
-box()
-axis(side = 1, labels = T, cex.axis = 1.25)
-axis(side = 2, las = 1, cex.axis = 1.25)
-
-par <- opar
-
+process <- function(x = "", channel = "", scale = ""){
+  if(scale == TRUE){
+    fcs <- flowCore::read.FCS(file = x, transformation = "scale")
+  }
+  else{
+    fcs <- flowCore::read.FCS(file = x)
+  }
+  flow <- flowCore::exprs(fcs)
+  RSG_H <- as.data.frame(flow[,channel])
+  rac <- RAC(x = RSG_H)
+  ranks <- as.vector(seq(1,length(rac)))
+  rac <- cbind(ranks, rac)
+  return(rac)
+}
 ```
+
+#Cdist function takes in a list of activity values and calculates the CDF and returns the CDF and percentage of cells contributing to CDF
 ```{r}
 CDist <- function(x = ""){
   x <- as.vector(x)
@@ -82,18 +68,25 @@ CDist <- function(x = ""){
   }
   ranked <- cbind(cdist, Per)
   return(ranked)
+
 }
 ```
 
-```{r}
-Cdist_C1 <- CDist(rac_C1)
-Cdist_B1 <- CDist(rac_B1)
 
+# Relative and Absolute Abundance MURI lines
+```{r}
+plot.new()
 par(mar = c(5,5,4,1)+0.1, mfrow = c(1,2))
 
-plot(ranks_B1, log(rac_B1), type = 'p', axes = F, xlab = "Rank in activity", ylab = "", las = 1, cex.lab = 1.4, cex.axis = 1.25)
-mtext("log(RSG-H value)", side = 2, line = 3, cex = 1.4)
-points(ranks_C1, log(rac_C1), type = 'p', col = "red")
+rac_0S1 <- process("../data/FCS/EAM_20190403_MURI_1day/Stained_0S1.fcs", "BL1-H", TRUE)
+rac_1S1 <- process("../data/FCS/EAM_20190403_MURI_10day/Specimen1_1S2.fcs", "BL1-H", TRUE)
+rac_2S1 <- process("../data/FCS/EAM_20190403_MURI_100day/Stained_2S1-1.fcs", "BL1-H", TRUE)
+opar <- par(no.readonly = TRUE)
+par(mar = c(5,6,4,2)+0.1)
+plot(rac_0S1[,1], log(rac_0S1[,2]), type = 'p', axes = F, xlab = "Rank in activity", ylab = "", main = "Relative", las = 1, cex.lab = 1.4, cex.axis = 1.25)
+mtext("log(RSG-H value)", side = 2, line = 3, cex.lab = 1.4)
+points(rac_1S1[,1], log(rac_1S1[,2]), type = 'p', col = "red")
+points(rac_2S1[,1], log(rac_2S1[,2]), type = 'p', col = "blue")
 
 box()
 axis(side = 1, labels = T, cex.axis = 1.25)
@@ -101,10 +94,15 @@ axis(side = 2, las = 1, cex.axis = 1.25)
 
 par <- opar
 
-plot(Cdist_B1[,2],Cdist_B1[,1], type = 'p', axes = F, xlab = "", ylab = "", las = 1, cex.lab = 1.4, cex.axis = 1.25)
-mtext("% of rank-ordered cells \n contributing to activity", side = 1, line = 4, cex = 1.4)
-mtext("Cumulative % RSG activity", side = 2, line = 3, cex = 1.4)
-points(Cdist_C1[,2], Cdist_C1[,1], type = 'p', col = "red")
+rac_0S1 <- process("../data/FCS/EAM_20190403_MURI_1day/Stained_0S1.fcs", "BL1-H")
+rac_1S1 <- process("../data/FCS/EAM_20190403_MURI_10day/Specimen1_1S2.fcs", "BL1-H")
+rac_2S1 <- process("../data/FCS/EAM_20190403_MURI_100day/Stained_2S1-1.fcs", "BL1-H")
+opar <- par(no.readonly = TRUE)
+par(mar = c(5,6,4,2)+0.1)
+plot(rac_0S1[,1], log(rac_0S1[,2]), type = 'p', axes = F, xlab = "Rank in activity", ylab = "", main = "Absolute", las = 1, cex.lab = 1.4, cex.axis = 1.25)
+mtext("log(RSG-H value)", side = 2, line = 3, cex.lab = 1.4)
+points(rac_1S1[,1], log(rac_1S1[,2]), type = 'p', col = "red")
+points(rac_2S1[,1], log(rac_2S1[,2]), type = 'p', col = "blue")
 
 box()
 axis(side = 1, labels = T, cex.axis = 1.25)
@@ -112,24 +110,79 @@ axis(side = 2, las = 1, cex.axis = 1.25)
 
 par <- opar
 ```
+
+
 ```{r}
-fcs_C1 <- flowCore::read.FCS(file = "../data/C1_Live-RSG+SA.fcs")
-fcs_B1 <- flowCore::read.FCS(file = "../data/B1_Live-RSG.fcs")
+# Cdist_0S1 <- CDist(rac_0S1[,2])
+# pareto_0S1 <- fitdist(as.vector(Cdist_0S1[,2]), "pareto", start = list(shape = 0.1, scale = 10))
+# lognorm_0S1 <- fitdist(as.vector(Cdist_0S1[,2]), "lnorm")
+# Cdist_1S1 <- CDist(rac_1S1[,2])
+# pareto_1S1 <- fitdist(as.vector(Cdist_1S1[,2]), "pareto", start = list(shape = 0.1, scale = 10))
+# lognorm_1S1 <- fitdist(as.vector(Cdist_1S1[,2]), "lnorm")
+# Cdist_2S1 <- CDist(rac_2S1[,2])
+# pareto_2S1 <- fitdist(as.vector(Cdist_2S1[,2]), "pareto", start = list(shape = 0.1, scale = 10))
+# lognorm_2S1 <- fitdist(as.vector(Cdist_2S1[,2]), "lnorm")
 
-flow_C1 <- flowCore::exprs(fcs_C1)
-flow_B1 <- flowCore::exprs(fcs_B1)
+Cdist_0S1 <- CDist(rac_0S1[,2])
+pareto_0S1 <- fitdist(rac_0S1[,2], "pareto", start = list(shape = 0.1, scale = 10))
+lognorm_0S1 <- fitdist(rac_0S1[,2], "lnorm")
+Cdist_1S1 <- CDist(rac_1S1[,2])
+pareto_1S1 <- fitdist(rac_1S1[,2], "pareto", start = list(shape = 0.1, scale = 10))
+lognorm_1S1 <- fitdist(rac_1S1[,2], "lnorm")
+Cdist_2S1 <- CDist(rac_2S1[,2])
+pareto_2S1 <- fitdist(rac_2S1[,2], "pareto", start = list(shape = 0.1, scale = 10))
+lognorm_2S1 <- fitdist(rac_2S1[,2], "lnorm")
 
-RSG_H_C1 <- as.data.frame(flow_C1[,"BL1-H"])
-RSG_H_B1 <- as.data.frame(flow_B1[,"BL1-H"])
+# par(mar = c(5,5,4,1)+0.1, mfrow = c(1,2))
+# 
+# plot(rac_0S1[,1], log(rac_0S1[,2]), type = 'p', axes = F, xlab = "Rank in activity", ylab = "", las = 1, cex.lab = 1.4, cex.axis = 1.25)
+# mtext("log(RSG-H value)", side = 2, line = 3, cex = 1.4)
+# points(rac_1S1[,1], log(rac_1S1[,2]), type = 'p', col = "red")
+# points(rac_2S1[,1], log(rac_2S1[,2]), type = 'p', col = "blue")
+# 
+# box()
+# axis(side = 1, labels = T, cex.axis = 1.25)
+# axis(side = 2, las = 1, cex.axis = 1.25)
 
-B1_fits <- as.data.frame(t(RSG_H_B1))
-C1_fits <- as.data.frame(t(RSG_H_C1))
-B1_RACfit <- radfit(B1_fits)
-B1_RACfit
-C1_RACfit <- radfit(C1_fits)
-C1_RACfit
-plot(B1_RACfit, las=1, cex.lab = 1.4, cex.axis = 1.25)
-plot(C1_RACfit, las = 1, cex.lab = 1.4, cex.axis = 1.25)
+# par <- opar
+# 
+# plot(log(Cdist_0S1[,2]),log(Cdist_0S1[,1]), type = 'p', axes = F, xlab = "", ylab = "", las = 1, cex.lab = 1.4, cex.axis = 1.25)
+# mtext("% of rank-ordered cells \n contributing to activity", side = 1, line = 4, cex = 1.4)
+# mtext("Cumulative % RSG activity", side = 2, line = 3, cex = 1.4)
+# points(log(Cdist_1S1[,2]), log(Cdist_1S1[,1]), type = 'p', col = "red")
+# points(log(Cdist_2S1[,2]), log(Cdist_2S1[,1]), type = 'p', col = "blue")
+# 
+# box()
+# axis(side = 1, labels = T, cex.axis = 1.25)
+# axis(side = 2, las = 1, cex.axis = 1.25)
+# 
+# par <- opar
 
+cdfcomp(list(pareto_2S1, lognorm_2S1), xlogscale = FALSE, ylogscale = FALSE)
+```
+```{r}
+
+S1_0_fits <- as.data.frame(t(rac_0S1[,2]))
+S1_1_fits <- as.data.frame(t(rac_1S1[,2]))
+S1_2_fits <- as.data.frame(t(rac_2S1[,2]))
+S1_0_RACfit <- radfit(S1_0_fits)
+S1_0_RACfit
+S1_1_RACfit <- radfit(S1_1_fits)
+S1_1_RACfit
+S1_2_RACfit <- radfit(S1_2_fits)
+S1_2_RACfit
+plot(S1_0_RACfit, las=1, cex.lab = 1.4, cex.axis = 1.25)
+plot(S1_1_RACfit, las = 1, cex.lab = 1.4, cex.axis = 1.25)
+plot(S1_2_RACfit, las = 1, cex.lab = 1.4, cex.axis = 1.25)
+
+```
+
+```{r}
+hist_0S1 <- hist(rac_0S1[,2], breaks = 30)
+hist_1S1 <- hist(rac_1S1[,2], breaks = 30)
+hist_2S1 <- hist(rac_2S1[,2], breaks = 30)
+#plot(log(hist_0S1$mids), log(hist_0S1$density))
+points(log(hist_1S1$mids), log(hist_1S1$density), col = "red")
+#points(log(hist_2S1$mids), log(hist_2S1$density), col = "blue")
 ```
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
