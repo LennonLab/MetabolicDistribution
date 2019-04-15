@@ -66,3 +66,10 @@ par <- opar
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+hist <- hist(rac_C1)
+hist.dat <- data.frame(hist$mids,hist$counts,hist$density)
+colnames(hist.dat)<- c("mids", "counts", "density")
+plot(log10(hist.dat$mids), log10(hist.dat$density))
+```
