@@ -1,0 +1,32 @@
+---
+title: "Means_vs_distribution"
+author: "Emmi Mueller"
+date: "April 22, 2019"
+output: pdf_document
+---
+
+```{r}
+# generate lognormal distributuions with different standard deviations and subsample
+sddist <- data.frame(Sd = numeric(), Mean_100 = numeric(), Mean_1000 = numeric(), Mean_10000 = numeric(), Mean_Full = numeric())
+x = 0
+while(x < 3){
+  data.lognormal <- rlnorm(n=10^6, meanlog = 1, sdlog = x)
+  meandata <- mean(log(data.lognormal))
+  s.data.lognormal.10000 <- sample(data.lognormal, 10000)
+  s.data.lognormal.1000 <- sample(data.lognormal, 1000)
+  s.data.lognormal.100 <- sample(data.lognormal, 100)
+  mean.10000 <- mean(log(s.data.lognormal.10000))
+  mean.1000 <- mean(log(s.data.lognormal.1000))
+  mean.100 <- mean(log(s.data.lognormal.100))
+  add <- c(x, mean.100, mean.1000, mean.10000, meandata)
+  sddist <- rbind(sddist, add)
+  x <- x + 0.1
+}
+colnames(sddist) <- c("Sd", "Mean_100", "Mean_1000", "Mean_10000", "Mean_Full")
+
+plot(sddist$Sd, log(sddist$Mean_100), type = "l", col = "red", ylab = "mean", xlab = "sd", pch = 17)
+points(sddist$Sd, log(sddist$Mean_1000), type = "l", col = "blue", pch = 17)
+points(sddist$Sd, log(sddist$Mean_10000), type = "l", col = "green", pch = 17)
+points(sddist$Sd, log(sddist$Mean_Full), type = "l", pch = 17)
+legend("bottomleft", legend = c("Subsample = 100", "Subsample = 1000", "Subsample = 10000", "Sample"), col = c("red", "blue", "green", "black"), bty = "n", pch = 17)
+```
