@@ -15,6 +15,8 @@ BiocManager::install()
 library("vegan")
 library("fitdistrplus")
 library("actuar")
+install.packages("car")
+library("car")
 
 ```
 
@@ -72,21 +74,246 @@ CDist <- function(x = ""){
 }
 ```
 
+#GROWTH CURVE ANALYSIS
 
+##Process growth rate fcs files
+```{r}
+aa_rac_Ecoli_GC_1 <- process("../data/FCS/EAM_20190531_GrowthCurve/Specimen1_T1_S.fcs", "BL1-H")
+aa_rac_Ecoli_GC_2 <- process("../data/FCS/EAM_20190531_GrowthCurve/Specimen1_T2_S.fcs", "BL1-H")
+aa_rac_Ecoli_GC_3 <- process("../data/FCS/EAM_20190531_GrowthCurve/Specimen1_T3_S.fcs", "BL1-H")
+aa_rac_Ecoli_GC_4 <- process("../data/FCS/EAM_20190531_GrowthCurve/Specimen1_T4_S.fcs", "BL1-H")
+aa_rac_Ecoli_GC_5 <- process("../data/FCS/EAM_20190531_GrowthCurve/Specimen1_T5_S.fcs", "BL1-H")
+aa_rac_Ecoli_GC_6 <- process("../data/FCS/EAM_20190531_GrowthCurve/Specimen1_T6_S.fcs", "BL1-H")
+aa_rac_Ecoli_GC_7 <- process("../data/FCS/EAM_20190531_GrowthCurve/Specimen1_T7_S.fcs", "BL1-H")
+aa_Cdist_Ecoli_GC_1 <- CDist(aa_rac_Ecoli_GC_1[,2])
+aa_Cdist_Ecoli_GC_2 <- CDist(aa_rac_Ecoli_GC_2[,2])
+aa_Cdist_Ecoli_GC_3 <- CDist(aa_rac_Ecoli_GC_3[,2])
+aa_Cdist_Ecoli_GC_4 <- CDist(aa_rac_Ecoli_GC_4[,2])
+aa_Cdist_Ecoli_GC_5 <- CDist(aa_rac_Ecoli_GC_5[,2])
+aa_Cdist_Ecoli_GC_6 <- CDist(aa_rac_Ecoli_GC_6[,2])
+aa_Cdist_Ecoli_GC_7 <- CDist(aa_rac_Ecoli_GC_7[,2])
+
+ra_rac_Ecoli_GC_1 <- process("../data/FCS/EAM_20190531_GrowthCurve/Specimen1_T1_S.fcs", "BL1-H", TRUE)
+ra_rac_Ecoli_GC_2 <- process("../data/FCS/EAM_20190531_GrowthCurve/Specimen1_T2_S.fcs", "BL1-H", TRUE)
+ra_rac_Ecoli_GC_3 <- process("../data/FCS/EAM_20190531_GrowthCurve/Specimen1_T3_S.fcs", "BL1-H", TRUE)
+ra_rac_Ecoli_GC_4 <- process("../data/FCS/EAM_20190531_GrowthCurve/Specimen1_T4_S.fcs", "BL1-H", TRUE)
+ra_rac_Ecoli_GC_5 <- process("../data/FCS/EAM_20190531_GrowthCurve/Specimen1_T5_S.fcs", "BL1-H", TRUE)
+ra_rac_Ecoli_GC_6 <- process("../data/FCS/EAM_20190531_GrowthCurve/Specimen1_T6_S.fcs", "BL1-H", TRUE)
+ra_rac_Ecoli_GC_7 <- process("../data/FCS/EAM_20190531_GrowthCurve/Specimen1_T7_S.fcs", "BL1-H", TRUE)
+ra_Cdist_Ecoli_GC_1 <- CDist(ra_rac_Ecoli_GC_1[,2])
+ra_Cdist_Ecoli_GC_2 <- CDist(ra_rac_Ecoli_GC_2[,2])
+ra_Cdist_Ecoli_GC_3 <- CDist(ra_rac_Ecoli_GC_3[,2])
+ra_Cdist_Ecoli_GC_4 <- CDist(ra_rac_Ecoli_GC_4[,2])
+ra_Cdist_Ecoli_GC_5 <- CDist(ra_rac_Ecoli_GC_5[,2])
+ra_Cdist_Ecoli_GC_6 <- CDist(ra_rac_Ecoli_GC_6[,2])
+ra_Cdist_Ecoli_GC_7 <- CDist(ra_rac_Ecoli_GC_7[,2])
+
+OD600_Ecoli_GC <- read.table(file = "../data/FCS/EAM_20190531_GrowthCurve/20190531_EAM_GrowthCurve.txt", header = TRUE, sep = "\t")
+
+```
+
+#GC lines relative abundance CDF and RAC using OD600
+```{r}
+#fit logistic growth model to growth curve
+coef(lm(logit(OD600_Ecoli_GC$OD600/0.9)~OD600_Ecoli_GC$minutes))
+growthcurve<-nls(OD600_Ecoli_GC$OD600~phi1/(1+exp(-(phi2+phi3*OD600_Ecoli_GC$minutes))),
+ start=list(phi1=0.9,phi2=-2.805,phi3=.031), data = OD600_Ecoli_GC, trace=TRUE)
+phi1<-coef(growthcurve)[1]
+phi2<-coef(growthcurve)[2]
+phi3<-coef(growthcurve)[3]
+x<-c(min(OD600_Ecoli_GC$minutes):max(OD600_Ecoli_GC$minutes))
+y<-phi1/(1+exp(-(phi2+phi3*x)))
+predict<-data.frame(x,y)
+
+#generate png file
+png(filename="../output/GrowthCurve.RSGdistribution.png",
+     width = 900, height = 900, res = 96*2)
+
+par(fig=c(0,1,0.4,1))
+color <- c("red", "orange", "yellow", "green", "cyan", "blue", "purple")
+plot(OD600_Ecoli_GC$minutes, OD600_Ecoli_GC$OD600, col = color, pch = 19, cex = 1, ylab = "", xlab= "", yaxt = "n", xaxt = "n")
+mtext("Time(mins)", side = 1, line = 1.1, cex = 0.8)
+mtext("OD600", side = 2, line = 1.1, cex = 0.8)
+axis(2,cex.axis=0.7,  mgp = c(3, 0.5, 0))
+axis(1, cex.axis = 0.7,  mgp = c(3, 0.5, 0))
+lines(predict)
+
+par(fig=c(0,0.55,0,0.65), new=TRUE)
+plot(ra_rac_Ecoli_GC_7[,1], log(ra_rac_Ecoli_GC_7[,2]), type = 'p', xlab = "", ylab = "", cex = 0.25, col = "red", yaxt = "n", xaxt = "n")
+mtext("Rank in activity", side = 1, line = 1.1, cex = 0.8)
+mtext("log(RSG-H value)", side = 2, line = 1.1, cex = 0.8)
+axis(2,cex.axis=0.7,  mgp = c(3, 0.5, 0))
+axis(1, cex.axis = 0.7, mgp = c(3, 0.5, 0))
+points(ra_rac_Ecoli_GC_2[,1], log(ra_rac_Ecoli_GC_2[,2]), type = 'p', cex = 0.25, col = "orange")
+points(ra_rac_Ecoli_GC_3[,1], log(ra_rac_Ecoli_GC_3[,2]), type = 'p', cex = 0.25, col = "yellow")
+points(ra_rac_Ecoli_GC_4[,1], log(ra_rac_Ecoli_GC_4[,2]), type = 'p', cex = 0.25, col = "green")
+points(ra_rac_Ecoli_GC_5[,1], log(ra_rac_Ecoli_GC_5[,2]), type = 'p', cex = 0.25, col = "cyan")
+points(ra_rac_Ecoli_GC_6[,1], log(ra_rac_Ecoli_GC_6[,2]), type = 'p', cex = 0.25, col = "blue")
+points(ra_rac_Ecoli_GC_1[,1], log(ra_rac_Ecoli_GC_1[,2]), type = 'p', cex = 0.25, col = "purple")
+box()
+
+par(fig=c(0.45,1,0,0.65), new=TRUE)
+plot(ra_Cdist_Ecoli_GC_1[,2], ra_Cdist_Ecoli_GC_1[,1], type = 'p', xlab = "", ylab = "", cex = 0.25, col = "red", yaxt = "n", xaxt = "n")
+mtext("% of rank-ordered cells \ncontributing to activity", side = 1, line = 2, cex = 0.8)
+mtext("Cumulative % \nRSG activity", side = 2, line = 1.1, cex = 0.8)
+axis(2, at = c(0,20,40,60,80,100), labels = c("0","20","40","60","80","100"), cex.axis=0.7, mgp = c(3,0.5,0))
+axis(1, cex.axis = 0.7, mgp = c(3,0.5,0), at = c(0,20,40,60,80,100), labels = TRUE)
+points(ra_Cdist_Ecoli_GC_2[,2], ra_Cdist_Ecoli_GC_2[,1], type = 'p', cex = 0.25, col = "orange")
+points(ra_Cdist_Ecoli_GC_3[,2], ra_Cdist_Ecoli_GC_3[,1], type = 'p', cex = 0.25, col = "yellow")
+points(ra_Cdist_Ecoli_GC_4[,2], ra_Cdist_Ecoli_GC_4[,1], type = 'p', cex = 0.25, col = "green")
+points(ra_Cdist_Ecoli_GC_5[,2], ra_Cdist_Ecoli_GC_5[,1], type = 'p', cex = 0.25, col = "cyan")
+points(ra_Cdist_Ecoli_GC_6[,2], ra_Cdist_Ecoli_GC_6[,1], type = 'p', cex = 0.25, col = "blue")
+points(ra_Cdist_Ecoli_GC_7[,2], ra_Cdist_Ecoli_GC_7[,1], type = 'p', cex = 0.25, col = "purple")
+box()
+
+dev.off()
+
+```
+
+#OD600 vs. Abundance curves and fits
+```{r}
+
+plot(OD600_Ecoli_GC$minutes, OD600_Ecoli_GC$abs_count)
+#fit logistic growth model to growth curve for abs_count
+coef(lm(logit(OD600_Ecoli_GC$abs_count/490000000)~OD600_Ecoli_GC$minutes))
+growthcurve<-nls(OD600_Ecoli_GC$abs_count~phi1/(1+exp(-(phi2+phi3*OD600_Ecoli_GC$minutes))),
+ start=list(phi1=490000000,phi2=-3.162,phi3=0.031), data = OD600_Ecoli_GC, trace=TRUE)
+phi1<-coef(growthcurve)[1]
+phi2<-coef(growthcurve)[2]
+phi3<-coef(growthcurve)[3]
+x<-c(min(OD600_Ecoli_GC$minutes):max(OD600_Ecoli_GC$minutes))
+y<-phi1/(1+exp(-(phi2+phi3*x)))
+predict_abscount<-data.frame(x,y)
+
+#generate png file
+png(filename="../output/GrowthCurve.OD600_abscount_fits.png",
+     width = 900, height = 900, res = 96*2)
+
+par(fig=c(0,1,0.5,1))
+color <- c("red", "orange", "yellow", "green", "cyan", "blue", "purple")
+plot(OD600_Ecoli_GC$minutes, OD600_Ecoli_GC$OD600, col = color, pch = 19, cex = 1, ylab = "", xlab= "", yaxt = "n", xaxt = "n")
+mtext("Time(mins)", side = 1, line = 1.1, cex = 0.8)
+mtext("OD600", side = 2, line = 1.1, cex = 0.8)
+axis(2,cex.axis=0.7,  mgp = c(3, 0.5, 0))
+axis(1, cex.axis = 0.7,  mgp = c(3, 0.5, 0))
+lines(predict)
+
+par(fig=c(0,1,0,0.5), new = TRUE)
+color <- c("red", "orange", "yellow", "green", "cyan", "blue", "purple")
+plot(OD600_Ecoli_GC$minutes, OD600_Ecoli_GC$abs_count, col = color, pch = 19, cex = 1, ylab = "", xlab= "", yaxt = "n", xaxt = "n")
+mtext("Time(mins)", side = 1, line = 1.1, cex = 0.8)
+mtext("abs. count", side = 2, line = 1.1, cex = 0.8)
+axis(2,cex.axis=0.7,  mgp = c(3, 0.5, 0))
+axis(1, cex.axis = 0.7,  mgp = c(3, 0.5, 0))
+lines(predict_abscount)
+
+dev.off()
+```
+
+
+```{r}
+OD600 <- function(x) (phi1/(1+exp(-(phi2+phi3*x))))
+curve(OD600, 0, 250, ylab = "y=f(x)")
+deriv_OD600 <- function(x) {}
+body(deriv_OD600) <- D(body(OD600), 'x')
+curve(deriv_OD600, 0, 250, ylab = "f'(x)")
+deriv <- deriv_OD600(OD600_Ecoli_GC$minutes)
+
+pareto_ra_rac_Ecoli_GC_1 <- fitdist(ra_rac_Ecoli_GC_1[,2], "pareto", start = list(shape = 0.1, scale = 10))
+pareto_ra_rac_Ecoli_GC_2 <- fitdist(ra_rac_Ecoli_GC_2[,2], "pareto", start = list(shape = 0.1, scale = 10))
+pareto_ra_rac_Ecoli_GC_3 <- fitdist(ra_rac_Ecoli_GC_3[,2], "pareto", start = list(shape = 0.1, scale = 10))
+pareto_ra_rac_Ecoli_GC_4 <- fitdist(ra_rac_Ecoli_GC_4[,2], "pareto", start = list(shape = 0.1, scale = 10))
+pareto_ra_rac_Ecoli_GC_5 <- fitdist(ra_rac_Ecoli_GC_5[,2], "pareto", start = list(shape = 0.1, scale = 10))
+pareto_ra_rac_Ecoli_GC_6 <- fitdist(ra_rac_Ecoli_GC_6[,2], "pareto", start = list(shape = 0.1, scale = 10))
+pareto_ra_rac_Ecoli_GC_7 <- fitdist(ra_rac_Ecoli_GC_7[,2], "pareto", start = list(shape = 0.1, scale = 10))
+shape <- data.frame()
+scale <- data.frame()
+shapescale <- list(pareto_ra_rac_Ecoli_GC_1, pareto_ra_rac_Ecoli_GC_2, pareto_ra_rac_Ecoli_GC_3, pareto_ra_rac_Ecoli_GC_4, pareto_ra_rac_Ecoli_GC_5, pareto_ra_rac_Ecoli_GC_6, pareto_ra_rac_Ecoli_GC_7)
+for(n in shapescale){
+  shape <- rbind(shape, n$estimate[1])
+  scale <- rbind(scale, n$estimate[2])
+}
+GC <- data.frame(deriv, OD600_Ecoli_GC$OD600, OD600_Ecoli_GC$abs_count, shape, scale)
+names(GC) <- c("SGR", "OD600", "abs_count", "shape", "scale")
+plot(GC$abs_count, GC$scale)
+
+png(filename="../output/GrowthCurve.SpecificGrowthRate.png",
+     width = 900, height = 900, res = 96*2)
+
+par(fig=c(0,0.5,0.4,1))
+plot(GC$OD600, log(GC$shape), type = 'p', pch = 19, ylab = "", xlab = "", yaxt = "n", xaxt = "n", col = "red", main = "OD600")
+mtext("OD600", side = 1, line = 1.2, cex = 0.8)
+mtext("log(shape)", side = 2, line = 1.1, cex = 0.8)
+axis(2,cex.axis=0.7,  mgp = c(3, 0.5, 0))
+axis(1, cex.axis = 0.7,  mgp = c(3, 0.5, 0))
+par(fig=c(0,0.5,0,0.6), new = TRUE)
+plot(GC$OD600, log(GC$scale), type = 'p', pch = 19, ylab = "", xlab = "", yaxt = "n", xaxt = "n", col = "red")
+mtext("OD600", side = 1, line = 1.2, cex = 0.8)
+mtext("log(scale)", side = 2, line = 1.1, cex = 0.8)
+axis(2,cex.axis=0.7,  mgp = c(3, 0.5, 0))
+axis(1, cex.axis = 0.7,  mgp = c(3, 0.5, 0))
+
+# par(fig=c(0.5,1,0.4,1), new = TRUE)
+# plot(GC$SGR, log(GC$shape), type = 'p', pch = 19, ylab = "", xlab = "", yaxt = "n", xaxt = "n", col = "blue", main = "µ")
+# mtext("µ", side = 1, line = 1.2, cex = 0.8)
+# mtext("log(shape)", side = 2, line = 1.1, cex = 0.8)
+# axis(2,cex.axis=0.7,  mgp = c(3, 0.5, 0))
+# axis(1, cex.axis = 0.7,  mgp = c(3, 0.5, 0))
+# par(fig=c(0.5,1,0,0.6), new = TRUE)
+# plot(GC$SGR, log(GC$scale), type = 'p', pch = 19, ylab = "", xlab = "", yaxt = "n", xaxt = "n", col = "blue")
+# mtext("µ", side = 1, line = 1.2, cex = 0.8)
+# mtext("log(scale)", side = 2, line = 1.1, cex = 0.8)
+# axis(2,cex.axis=0.7,  mgp = c(3, 0.5, 0))
+# axis(1, cex.axis = 0.7,  mgp = c(3, 0.5, 0))
+
+par(fig=c(0.5,1,0.4,1), new = TRUE)
+plot(GC$abs_count, log(GC$shape), type = 'p', pch = 19, ylab = "", xlab = "", yaxt = "n", xaxt = "n", col = "blue", main = "Abs. count")
+mtext("abs. count", side = 1, line = 1.2, cex = 0.8)
+mtext("log(shape)", side = 2, line = 1.1, cex = 0.8)
+axis(2,cex.axis=0.7,  mgp = c(3, 0.5, 0))
+axis(1, cex.axis = 0.7,  mgp = c(3, 0.5, 0))
+par(fig=c(0.5,1,0,0.6), new = TRUE)
+plot(GC$abs_count, log(GC$scale), type = 'p', pch = 19, ylab = "", xlab = "", yaxt = "n", xaxt = "n", col = "blue")
+mtext("abs.count", side = 1, line = 1.2, cex = 0.8)
+mtext("log(scale)", side = 2, line = 1.1, cex = 0.8)
+axis(2,cex.axis=0.7,  mgp = c(3, 0.5, 0))
+axis(1, cex.axis = 0.7,  mgp = c(3, 0.5, 0))
+
+dev.off()
+
+```
+
+
+
+#Process MURI lines for and return ranked lists
+```{r}
+#relative abundance
+ra_rac_Spo0A_1day_S1 <- process("../data/FCS/EAM_20190403_MURI_1day/Stained_0S1.fcs", "BL1-H", TRUE)
+ra_rac_Spo0A_10day_S1 <- process("../data/FCS/EAM_20190403_MURI_10day/Specimen1_1S2.fcs", "BL1-H", TRUE)
+ra_rac_Spo0A_100day_S1 <- process("../data/FCS/EAM_20190403_MURI_100day/Stained_2S1-1.fcs", "BL1-H", TRUE)
+ra_Cdist_Spo0A_1day_S1 <- CDist(ra_rac_Spo0A_1day_S1[,2])
+ra_Cdist_Spo0A_10day_S1 <- CDist(ra_rac_Spo0A_10day_S1[,2])
+ra_Cdist_Spo0A_100day_S1 <- CDist(ra_rac_Spo0A_100day_S1[,2])
+
+#absolute abundance
+aa_rac_Spo0A_1day_S1 <- process("../data/FCS/EAM_20190403_MURI_1day/Stained_0S1.fcs", "BL1-H")
+aa_rac_Spo0A_10day_S1 <- process("../data/FCS/EAM_20190403_MURI_10day/Specimen1_1S2.fcs", "BL1-H")
+aa_rac_Spo0A_100day_S1 <- process("../data/FCS/EAM_20190403_MURI_100day/Stained_2S1-1.fcs", "BL1-H")
+aa_Cdist_Spo0A_1day_S1 <- CDist(aa_rac_Spo0A_1day_S1[,2])
+aa_Cdist_Spo0A_10day_S1 <- CDist(aa_rac_Spo0A_10day_S1[,2])
+aa_Cdist_Spo0A_100day_S1 <- CDist(aa_rac_Spo0A_100day_S1[,2])
+```
 # Relative and Absolute Abundance MURI lines
 ```{r}
 plot.new()
 par(mar = c(5,5,4,1)+0.1, mfrow = c(1,2))
 
-rac_0S1 <- process("../data/FCS/EAM_20190403_MURI_1day/Stained_0S1.fcs", "BL1-H", TRUE)
-rac_1S1 <- process("../data/FCS/EAM_20190403_MURI_10day/Specimen1_1S2.fcs", "BL1-H", TRUE)
-rac_2S1 <- process("../data/FCS/EAM_20190403_MURI_100day/Stained_2S1-1.fcs", "BL1-H", TRUE)
 opar <- par(no.readonly = TRUE)
 par(mar = c(5,6,4,2)+0.1)
-plot(rac_0S1[,1], log(rac_0S1[,2]), type = 'p', axes = F, xlab = "Rank in activity", ylab = "", main = "Relative", las = 1, cex.lab = 1.4, cex.axis = 1.25)
+plot(ra_rac_Spo0A_1day_S1[,1], log(ra_rac_Spo0A_1day_S1[,2]), type = 'p', axes = F, xlab = "Rank in activity", ylab = "", main = "Relative", las = 1, cex.lab = 1.4, cex.axis = 1.25)
 mtext("log(RSG-H value)", side = 2, line = 3, cex.lab = 1.4)
-points(rac_1S1[,1], log(rac_1S1[,2]), type = 'p', col = "red")
-points(rac_2S1[,1], log(rac_2S1[,2]), type = 'p', col = "blue")
+points(ra_rac_Spo0A_10day_S1[,1], log(ra_rac_Spo0A_10day_S1[,2]), type = 'p', col = "red")
+points(ra_rac_Spo0A_100day_S1[,1], log(ra_rac_Spo0A_100day_S1[,2]), type = 'p', col = "blue")
 
 box()
 axis(side = 1, labels = T, cex.axis = 1.25)
@@ -94,15 +321,12 @@ axis(side = 2, las = 1, cex.axis = 1.25)
 
 par <- opar
 
-rac_0S1 <- process("../data/FCS/EAM_20190403_MURI_1day/Stained_0S1.fcs", "BL1-H")
-rac_1S1 <- process("../data/FCS/EAM_20190403_MURI_10day/Specimen1_1S2.fcs", "BL1-H")
-rac_2S1 <- process("../data/FCS/EAM_20190403_MURI_100day/Stained_2S1-1.fcs", "BL1-H")
 opar <- par(no.readonly = TRUE)
 par(mar = c(5,6,4,2)+0.1)
-plot(rac_0S1[,1], log(rac_0S1[,2]), type = 'p', axes = F, xlab = "Rank in activity", ylab = "", main = "Absolute", las = 1, cex.lab = 1.4, cex.axis = 1.25)
+plot(aa_rac_Spo0A_1day_S1[,1], log(aa_rac_Spo0A_1day_S1[,2]), type = 'p', axes = F, xlab = "Rank in activity", ylab = "", main = "Absolute", las = 1, cex.lab = 1.4, cex.axis = 1.25)
 mtext("log(RSG-H value)", side = 2, line = 3, cex.lab = 1.4)
-points(rac_1S1[,1], log(rac_1S1[,2]), type = 'p', col = "red")
-points(rac_2S1[,1], log(rac_2S1[,2]), type = 'p', col = "blue")
+points(aa_rac_Spo0A_10day_S1[,1], log(aa_rac_Spo0A_10day_S1[,2]), type = 'p', col = "red")
+points(aa_rac_Spo0A_100day_S1[,1], log(aa_rac_Spo0A_100day_S1[,2]), type = 'p', col = "blue")
 
 box()
 axis(side = 1, labels = T, cex.axis = 1.25)
@@ -113,53 +337,62 @@ par <- opar
 
 
 ```{r}
-# Cdist_0S1 <- CDist(rac_0S1[,2])
-# pareto_0S1 <- fitdist(as.vector(Cdist_0S1[,2]), "pareto", start = list(shape = 0.1, scale = 10))
-# lognorm_0S1 <- fitdist(as.vector(Cdist_0S1[,2]), "lnorm")
-# Cdist_1S1 <- CDist(rac_1S1[,2])
-# pareto_1S1 <- fitdist(as.vector(Cdist_1S1[,2]), "pareto", start = list(shape = 0.1, scale = 10))
-# lognorm_1S1 <- fitdist(as.vector(Cdist_1S1[,2]), "lnorm")
-# Cdist_2S1 <- CDist(rac_2S1[,2])
-# pareto_2S1 <- fitdist(as.vector(Cdist_2S1[,2]), "pareto", start = list(shape = 0.1, scale = 10))
-# lognorm_2S1 <- fitdist(as.vector(Cdist_2S1[,2]), "lnorm")
+#MURI lines absolute abundance CDF and RAC
+par(mar = c(5,5,4,1)+0.1, mfrow = c(1,2))
 
-Cdist_0S1 <- CDist(rac_0S1[,2])
-pareto_0S1 <- fitdist(rac_0S1[,2], "pareto", start = list(shape = 0.1, scale = 10))
-lognorm_0S1 <- fitdist(rac_0S1[,2], "lnorm")
-Cdist_1S1 <- CDist(rac_1S1[,2])
-pareto_1S1 <- fitdist(rac_1S1[,2], "pareto", start = list(shape = 0.1, scale = 10))
-lognorm_1S1 <- fitdist(rac_1S1[,2], "lnorm")
-Cdist_2S1 <- CDist(rac_2S1[,2])
-pareto_2S1 <- fitdist(rac_2S1[,2], "pareto", start = list(shape = 0.1, scale = 10))
-lognorm_2S1 <- fitdist(rac_2S1[,2], "lnorm")
+plot(aa_rac_Spo0A_1day_S1[,1], log(aa_rac_Spo0A_1day_S1[,2]), type = 'p', axes = F, xlab = "Rank in activity", ylab = "", las = 1, cex.lab = 1.4, cex.axis = 1.25)
+mtext("log(RSG-H value)", side = 2, line = 3, cex = 1.4)
+points(aa_rac_Spo0A_10day_S1[,1], log(aa_rac_Spo0A_10day_S1[,2]), type = 'p', col = "red")
+points(aa_rac_Spo0A_100day_S1[,1], log(aa_rac_Spo0A_100day_S1[,2]), type = 'p', col = "blue")
 
-# par(mar = c(5,5,4,1)+0.1, mfrow = c(1,2))
-# 
-# plot(rac_0S1[,1], log(rac_0S1[,2]), type = 'p', axes = F, xlab = "Rank in activity", ylab = "", las = 1, cex.lab = 1.4, cex.axis = 1.25)
-# mtext("log(RSG-H value)", side = 2, line = 3, cex = 1.4)
-# points(rac_1S1[,1], log(rac_1S1[,2]), type = 'p', col = "red")
-# points(rac_2S1[,1], log(rac_2S1[,2]), type = 'p', col = "blue")
-# 
-# box()
-# axis(side = 1, labels = T, cex.axis = 1.25)
-# axis(side = 2, las = 1, cex.axis = 1.25)
+box()
+axis(side = 1, labels = T, cex.axis = 1.25)
+axis(side = 2, las = 1, cex.axis = 1.25)
 
-# par <- opar
-# 
-# plot(log(Cdist_0S1[,2]),log(Cdist_0S1[,1]), type = 'p', axes = F, xlab = "", ylab = "", las = 1, cex.lab = 1.4, cex.axis = 1.25)
-# mtext("% of rank-ordered cells \n contributing to activity", side = 1, line = 4, cex = 1.4)
-# mtext("Cumulative % RSG activity", side = 2, line = 3, cex = 1.4)
-# points(log(Cdist_1S1[,2]), log(Cdist_1S1[,1]), type = 'p', col = "red")
-# points(log(Cdist_2S1[,2]), log(Cdist_2S1[,1]), type = 'p', col = "blue")
-# 
-# box()
-# axis(side = 1, labels = T, cex.axis = 1.25)
-# axis(side = 2, las = 1, cex.axis = 1.25)
-# 
-# par <- opar
+par <- opar
 
-cdfcomp(list(pareto_2S1, lognorm_2S1), xlogscale = FALSE, ylogscale = FALSE)
+plot(aa_Cdist_Spo0A_1day_S1[,2], aa_Cdist_Spo0A_1day_S1[,1], type = 'p', axes = F, xlab = "", ylab = "", las = 1, cex.lab = 1.4, cex.axis = 1.25)
+mtext("% of rank-ordered cells \n contributing to activity", side = 1, line = 4, cex = 1.4)
+mtext("Cumulative % RSG activity", side = 2, line = 3, cex = 1.4)
+points(aa_Cdist_Spo0A_10day_S1[,2], aa_Cdist_Spo0A_10day_S1[,1], type = 'p', col = "red")
+points(aa_Cdist_Spo0A_100day_S1[,2], aa_Cdist_Spo0A_100day_S1[,1], type = 'p', col = "blue")
+
+box()
+axis(side = 1, labels = T, cex.axis = 1.25)
+axis(side = 2, las = 1, cex.axis = 1.25)
+
+par <- opar
 ```
+
+```{r}
+#MURI lines relative abundance CDF and RAC
+par(mar = c(5,5,4,1)+0.1, mfrow = c(1,2))
+
+plot(ra_rac_Spo0A_1day_S1[,1], log(ra_rac_Spo0A_1day_S1[,2]), type = 'p', axes = F, xlab = "Rank in activity", ylab = "", las = 1, cex.lab = 1.4, cex.axis = 1.25)
+mtext("log(RSG-H value)", side = 2, line = 3, cex = 1.4)
+points(ra_rac_Spo0A_10day_S1[,1], log(ra_rac_Spo0A_10day_S1[,2]), type = 'p', col = "red")
+points(ra_rac_Spo0A_100day_S1[,1], log(ra_rac_Spo0A_100day_S1[,2]), type = 'p', col = "blue")
+
+box()
+axis(side = 1, labels = T, cex.axis = 1.25)
+axis(side = 2, las = 1, cex.axis = 1.25)
+
+par <- opar
+
+plot(ra_Cdist_Spo0A_1day_S1[,2], ra_Cdist_Spo0A_1day_S1[,1], type = 'p', axes = F, xlab = "", ylab = "", las = 1, cex.lab = 1.4, cex.axis = 1.25)
+mtext("% of rank-ordered cells \n contributing to activity", side = 1, line = 4, cex = 1.4)
+mtext("Cumulative % RSG activity", side = 2, line = 3, cex = 1.4)
+points(ra_Cdist_Spo0A_10day_S1[,2], ra_Cdist_Spo0A_10day_S1[,1], type = 'p', col = "red")
+points(ra_Cdist_Spo0A_100day_S1[,2], ra_Cdist_Spo0A_100day_S1[,1], type = 'p', col = "blue")
+
+box()
+axis(side = 1, labels = T, cex.axis = 1.25)
+axis(side = 2, las = 1, cex.axis = 1.25)
+
+par <- opar
+
+```
+
 ```{r}
 
 S1_0_fits <- as.data.frame(t(rac_0S1[,2]))
@@ -192,4 +425,15 @@ hist <- hist(rac_C1)
 hist.dat <- data.frame(hist$mids,hist$counts,hist$density)
 colnames(hist.dat)<- c("mids", "counts", "density")
 plot(log10(hist.dat$mids), log10(hist.dat$density))
+```
+
+#code that doesn't have a place
+```{r}
+pareto_0S1 <- fitdist(rac_0S1[,2], "pareto", start = list(shape = 0.1, scale = 10))
+lognorm_0S1 <- fitdist(rac_0S1[,2], "lnorm")
+pareto_1S1 <- fitdist(rac_1S1[,2], "pareto", start = list(shape = 0.1, scale = 10))
+lognorm_1S1 <- fitdist(rac_1S1[,2], "lnorm")
+pareto_2S1 <- fitdist(rac_2S1[,2], "pareto", start = list(shape = 0.1, scale = 10))
+lognorm_2S1 <- fitdist(rac_2S1[,2], "lnorm")
+cdfcomp(list(pareto_2S1, lognorm_2S1), xlogscale = FALSE, ylogscale = FALSE)
 ```
