@@ -15,11 +15,13 @@ meandata <- mean(log(data.lognormal))
 line0 <- c(x, 0, meandata)
 s.data.lognormal.10000 <- sample(data.lognormal, 10000)
 mean.10000 <- mean(log(s.data.lognormal.10000))
+line10000 <- c(x, 10000, mean.10000)
 s.data.lognormal.1000 <- sample(data.lognormal, 1000)
 mean.1000 <- mean(log(s.data.lognormal.1000))
+line1000 <- c(x, 1000, mean.1000)
 s.data.lognormal.100 <- sample(data.lognormal, 100)
 mean.100 <- mean(log(s.data.lognormal.100))
-line <- c()
+line100 <- c(x, 100, mean.100)
 sddist <- rbind(sddist, line10000)
 sddist <- rbind(sddist, line1000)
 sddist <- rbind(sddist, line100)
@@ -31,7 +33,7 @@ while(x < 3){
   line0 <- c(x, 0, meandata)
   sddist <- rbind(sddist, line0)
   y = 0
-  while(y < 1000){
+  while(y < 100){
     s.data.lognormal.10000 <- sample(data.lognormal, 10000)
     mean.10000 <- mean(log(s.data.lognormal.10000))
     line10000 <- c(x, 10000, mean.10000)
@@ -49,10 +51,11 @@ while(x < 3){
   x <- x + 0.1
 }
 
-colnames(sddist) <- c("Sd", "Mean","Subsample")
+colnames(sddist) <- c("Sd","Subsample", "Mean")
 
-plot(sddist$Sd, log(sddist$Mean[sddist$Subsample == "100"]), col = "red", ylab = "mean", xlab = "sd", pch = 20)
-points(sddist$Sd, log(sddist$Mean[sddist$Subsample == "1000"]), col = "blue", pch = 20)
-points(sddist$Sd, log(sddist$Mean[sddist$Subsample == "10000"]),col = "green", pch = 20)
+plot(sddist$Sd[sddist$Subsample == "100"], log(sddist$Mean[sddist$Subsample == "100"]), col = "red", ylab = "mean", xlab = "sd", pch = 20, ylim = c(-3, 2))
+points(sddist$Sd[sddist$Subsample == "1000"], log(sddist$Mean[sddist$Subsample == "1000"]), col = "blue", pch = 20)
+points(sddist$Sd[sddist$Subsample == "10000"], log(sddist$Mean[sddist$Subsample == "10000"]),col = "green", pch = 20)
+points(sddist$Sd[sddist$Subsample == "0"], log(sddist$Mean[sddist$Subsample == "0"]), col = "black", pch = 20)
 legend("bottomleft", legend = c("Subsample = 100", "Subsample = 1000", "Subsample = 10000", "Sample"), col = c("red", "blue", "green", "black"), bty = "n", pch = 20)
 ```

@@ -92,6 +92,8 @@ process <- function(x = "", channel = "", scale = ""){
 }
 ```
 
+
+#Comparison of CCCP and non-CCCP E.coli samples
 ```{r}
 aa_GC <- processmultiple(c("../data/FCS/EAM_20190531_GrowthCurve/Specimen1_T1_S.fcs","../data/FCS/EAM_20190531_GrowthCurve/Specimen1_T1_S.fcs"), "BL1-H", FALSE, "aa_rac_Ecoli_GC", c(1, 2))
 names(aa_GC)
@@ -214,7 +216,7 @@ phi3_ac<-coef(growthcurve_ac)[3]
 y<-phi1_ac/(1+exp(-(phi2_ac+phi3_ac*x)))
 predict_abscount<-data.frame(x,y)
 ```
-
+#Growth Curve OD600 vs. Abs count fits
 ```{r}
 #generate png file
 png(filename="../output/GrowthCurve.OD600_abscount_fits.png",
@@ -289,7 +291,7 @@ dev.off()
 
 
 
-
+#Growth curve pareto distribution fits against OD
 ```{r}
 OD600 <- function(x) (phi1_OD/(1+exp(-(phi2_OD+phi3_OD*x))))
 curve(OD600, 0, 250, ylab = "OD600=f(minutes)")
@@ -341,13 +343,13 @@ axis(1, cex.axis = 0.7,  mgp = c(3, 0.5, 0))
 
 par(fig=c(0,0.5,0.25,0.75), new = TRUE)
 plot(GC$SGR, log(GC$shape), type = 'p', pch = 19, ylab = "", xlab = "", yaxt = "n", xaxt = "n", col = "blue")
-mtext("µ", side = 1, line = 1.2, cex = 0.8)
+mtext("?", side = 1, line = 1.2, cex = 0.8)
 mtext("log(shape)", side = 2, line = 1.1, cex = 0.8)
 axis(2,cex.axis=0.7,  mgp = c(3, 0.5, 0))
 axis(1, cex.axis = 0.7,  mgp = c(3, 0.5, 0))
 par(fig=c(0.5,1,0.25,0.75), new = TRUE)
 plot(GC$SGR, log(GC$scale), type = 'p', pch = 19, ylab = "", xlab = "", yaxt = "n", xaxt = "n", col = "blue")
-mtext("µ", side = 1, line = 1.2, cex = 0.8)
+mtext("?", side = 1, line = 1.2, cex = 0.8)
 mtext("log(scale)", side = 2, line = 1.1, cex = 0.8)
 axis(2,cex.axis=0.7,  mgp = c(3, 0.5, 0))
 axis(1, cex.axis = 0.7,  mgp = c(3, 0.5, 0))
@@ -392,148 +394,102 @@ aa_Cdist_Spo0A_100day_S1 <- CDist(aa_rac_Spo0A_100day_S1[,2])
 ```
 # Relative and Absolute Abundance MURI lines
 ```{r}
-plot.new()
-par(mar = c(5,5,4,1)+0.1, mfrow = c(1,2))
+png(filename="../output/MURI.Spo0A_RSG_ra_aa.png",
+     width = 1800, height = 900, res = 96*2)
 
-opar <- par(no.readonly = TRUE)
-par(mar = c(5,6,4,2)+0.1)
-plot(ra_rac_Spo0A_1day_S1[,1], log(ra_rac_Spo0A_1day_S1[,2]), type = 'p', axes = F, xlab = "Rank in activity", ylab = "", main = "Relative", las = 1, cex.lab = 1.4, cex.axis = 1.25)
-mtext("log(RSG-H value)", side = 2, line = 3, cex.lab = 1.4)
+par(fig=c(0,0.5,0,1))
+
+plot(ra_rac_Spo0A_1day_S1[,1], log(ra_rac_Spo0A_1day_S1[,2]), type = 'p', axes = F, xlab = "Rank in activity", ylab = "", las = 1, cex.lab = 1.4, cex.axis = 1.25)
+mtext("log(RSG-H value)", side = 2, line = 3, cex = 1.4)
+mtext("Relative abundance", side = 3, line = 1, cex = 2)
 points(ra_rac_Spo0A_10day_S1[,1], log(ra_rac_Spo0A_10day_S1[,2]), type = 'p', col = "red")
 points(ra_rac_Spo0A_100day_S1[,1], log(ra_rac_Spo0A_100day_S1[,2]), type = 'p', col = "blue")
-
 box()
 axis(side = 1, labels = T, cex.axis = 1.25)
 axis(side = 2, las = 1, cex.axis = 1.25)
 
-par <- opar
+par(fig=c(0.5,1,0,1), new = TRUE)
 
-opar <- par(no.readonly = TRUE)
-par(mar = c(5,6,4,2)+0.1)
-plot(aa_rac_Spo0A_1day_S1[,1], log(aa_rac_Spo0A_1day_S1[,2]), type = 'p', axes = F, xlab = "Rank in activity", ylab = "", main = "Absolute", las = 1, cex.lab = 1.4, cex.axis = 1.25)
-mtext("log(RSG-H value)", side = 2, line = 3, cex.lab = 1.4)
+plot(aa_rac_Spo0A_1day_S1[,1], log(aa_rac_Spo0A_1day_S1[,2]), type = 'p', axes = F, xlab = "Rank in activity", ylab = "", las = 1, cex.lab = 1.4, cex.axis = 1.25)
+mtext("log(RSG-H value)", side = 2, line = 3, cex = 1.4)
+mtext("Absolute abundance", side = 3, line = 1, cex = 2)
 points(aa_rac_Spo0A_10day_S1[,1], log(aa_rac_Spo0A_10day_S1[,2]), type = 'p', col = "red")
 points(aa_rac_Spo0A_100day_S1[,1], log(aa_rac_Spo0A_100day_S1[,2]), type = 'p', col = "blue")
-
+legend(10000,4.5, c("1 day", "10 day", "100 day"), c("black", "red", "blue"), cex = 1)
 box()
 axis(side = 1, labels = T, cex.axis = 1.25)
 axis(side = 2, las = 1, cex.axis = 1.25)
 
-par <- opar
+dev.off()
 ```
 
 
 ```{r}
 #MURI lines absolute abundance CDF and RAC
-par(mar = c(5,5,4,1)+0.1, mfrow = c(1,2))
+png(filename="../output/MURI.Spo0A_RSG_aaCDF.png",
+     width = 1800, height = 900, res = 96*2)
 
-plot(aa_rac_Spo0A_1day_S1[,1], log(aa_rac_Spo0A_1day_S1[,2]), type = 'p', axes = F, xlab = "Rank in activity", ylab = "", las = 1, cex.lab = 1.4, cex.axis = 1.25)
-mtext("log(RSG-H value)", side = 2, line = 3, cex = 1.4)
-points(aa_rac_Spo0A_10day_S1[,1], log(aa_rac_Spo0A_10day_S1[,2]), type = 'p', col = "red")
-points(aa_rac_Spo0A_100day_S1[,1], log(aa_rac_Spo0A_100day_S1[,2]), type = 'p', col = "blue")
+par(fig=c(0,0.5,0,1))
 
+plot(aa_rac_Spo0A_1day_S1[,1], log(aa_rac_Spo0A_1day_S1[,2]), type = 'p', axes = F, xlab = "", ylab = "", las = 1, ylim = c(0,15))
+mtext("Rank in activity", side = 1, line = 2.75, cex = 1)
+mtext("log(RedoxSensor Green activity)", side = 2, line = 2.75, cex = 1)
+points(aa_rac_Spo0A_10day_S1[,1], log(aa_rac_Spo0A_10day_S1[,2]), type = 'p', col = "red", cex = 0.75)
+points(aa_rac_Spo0A_100day_S1[,1], log(aa_rac_Spo0A_100day_S1[,2]), type = 'p', col = "blue", cex = 0.75)
 box()
-axis(side = 1, labels = T, cex.axis = 1.25)
-axis(side = 2, las = 1, cex.axis = 1.25)
+axis(side = 1, labels = T)
+axis(side = 2, las = 1)
 
-par <- opar
+par(fig=c(0.5,1,0,1), new = TRUE)
 
-plot(aa_Cdist_Spo0A_1day_S1[,2], aa_Cdist_Spo0A_1day_S1[,1], type = 'p', axes = F, xlab = "", ylab = "", las = 1, cex.lab = 1.4, cex.axis = 1.25)
-mtext("% of rank-ordered cells \n contributing to activity", side = 1, line = 4, cex = 1.4)
-mtext("Cumulative % RSG activity", side = 2, line = 3, cex = 1.4)
-points(aa_Cdist_Spo0A_10day_S1[,2], aa_Cdist_Spo0A_10day_S1[,1], type = 'p', col = "red")
-points(aa_Cdist_Spo0A_100day_S1[,2], aa_Cdist_Spo0A_100day_S1[,1], type = 'p', col = "blue")
+
+plot(aa_Cdist_Spo0A_1day_S1[,2], aa_Cdist_Spo0A_1day_S1[,1], type = 'p', axes = F, xlab = "", ylab = "", las = 1)
+mtext("% of rank-ordered cells \n contributing to activity", side = 1, line = 3.5)
+mtext("Cumulative % \n RedoxSensor Green activity", side = 2, line = 2.5)
+points(aa_Cdist_Spo0A_10day_S1[,2], aa_Cdist_Spo0A_10day_S1[,1], type = 'p', col = "red", cex = 0.75)
+points(aa_Cdist_Spo0A_100day_S1[,2], aa_Cdist_Spo0A_100day_S1[,1], type = 'p', col = "blue", cex = 0.75)
 abline(1,1)
-
 box()
-axis(side = 1, labels = T, cex.axis = 1.25)
-axis(side = 2, las = 1, cex.axis = 1.25)
-
-par <- opar
-```
-
-##Figure for MURI Equipment Grant Report
-```{r}
-#relative abundance
-ra_rac_Spo0A_1day_S1 <- process("../data/FCS/EAM_20190403_MURI_1day/Stained_0S1.fcs", "BL1-H", TRUE)
-ra_rac_Spo0A_10day_S1 <- process("../data/FCS/EAM_20190403_MURI_10day/Specimen1_1S2.fcs", "BL1-H", TRUE)
-ra_rac_Spo0A_100day_S1 <- process("../data/FCS/EAM_20190403_MURI_100day/Stained_2S1-1.fcs", "BL1-H", TRUE)
-ra_Cdist_Spo0A_1day_S1 <- CDist(ra_rac_Spo0A_1day_S1[,2])
-ra_Cdist_Spo0A_10day_S1 <- CDist(ra_rac_Spo0A_10day_S1[,2])
-ra_Cdist_Spo0A_100day_S1 <- CDist(ra_rac_Spo0A_100day_S1[,2])
-
-#MURI lines relative abundance CDF and RAC
-par(mar = c(5,5,4,1)+0.1, mfrow = c(1,2))
-
-plot(ra_rac_Spo0A_1day_S1[,1], log(ra_rac_Spo0A_1day_S1[,2]), type = 'p', axes = F, xlab = "", ylab = "", las = 1, cex.lab = 1.25, cex = 0.75, ylim = c(-15,0))
-mtext("Rank in activity", side = 1, line = 2, cex = 1.25)
-mtext("log(RedoxSensorT Green activity)", side = 2, line = 2.75, cex = 1.25)
-points(ra_rac_Spo0A_10day_S1[,1], log(ra_rac_Spo0A_10day_S1[,2]), type = 'p', col = "red", cex = 0.75)
-points(ra_rac_Spo0A_100day_S1[,1], log(ra_rac_Spo0A_100day_S1[,2]), type = 'p', col = "blue", cex = 0.75)
-
-box()
-axis(side = 1, labels = T, cex.axis = 1.25)
-axis(side = 2, las = 1, cex.axis = 1.25)
-
-par <- opar
-
-plot(ra_Cdist_Spo0A_1day_S1[,2], ra_Cdist_Spo0A_1day_S1[,1], type = 'p', axes = F, xlab = "", ylab = "", las = 1, cex.lab = 1.4, cex.axis = 1.25, cex = 0.75)
-mtext("% of rank-ordered cells \n contributing to activity", side = 1, line = 3.5, cex = 1.25)
-mtext("Cumulative % RedoxSensorT\nGreen activity", side = 2, line = 2.5, cex = 1.25)
-points(ra_Cdist_Spo0A_10day_S1[,2], ra_Cdist_Spo0A_10day_S1[,1], type = 'p', col = "red", cex = 0.75)
-points(ra_Cdist_Spo0A_100day_S1[,2], ra_Cdist_Spo0A_100day_S1[,1], type = 'p', col = "blue", cex = 0.75)
-legend(60,25, c("1 day", "10 day", "100 day"), c("black", "red", "blue"), cex = 0.75)
-abline(1,1)
+axis(side = 1, labels = T)
+axis(side = 2, las = 1)
+legend(65,30, c("1 day", "10 day", "100 day"), c("black", "red", "blue"))
 text(90,80, "1:1")
 
+mtext("Absolute abundance", outer = TRUE, cex = 2, line =-2.5)
+
+dev.off()
+```
+
+##Figure for MURI Equipment Grant Report (relative abundance activity)
+```{r}
+#MURI lines relative abundance CDF and RAC
+png(filename="../output/MURI.Spo0A_RSG_raCDF.png",
+     width = 1800, height = 900, res = 96*2)
+
+par(fig=c(0,0.5,0,1))
+
+plot(ra_rac_Spo0A_1day_S1[,1], log(ra_rac_Spo0A_1day_S1[,2]), type = 'p', axes = F, xlab = "", ylab = "", las = 1, ylim = c(-15,0))
+mtext("Rank in activity", side = 1, line = 2.75, cex = 1)
+mtext("log(RedoxSensor Green activity)", side = 2, line = 2.75, cex = 1)
+points(ra_rac_Spo0A_10day_S1[,1], log(ra_rac_Spo0A_10day_S1[,2]), type = 'p', col = "red", cex = 0.75)
+points(ra_rac_Spo0A_100day_S1[,1], log(ra_rac_Spo0A_100day_S1[,2]), type = 'p', col = "blue", cex = 0.75)
 box()
-axis(side = 1, labels = T, cex.axis = 1.25)
-axis(side = 2, las = 1, cex.axis = 1.25)
+axis(side = 1, labels = T)
+axis(side = 2, las = 1)
 
-par <- opar
-```
+par(fig=c(0.5,1,0,1), new = TRUE)
 
-```{r}
-
-S1_0_fits <- as.data.frame(t(rac_0S1[,2]))
-S1_1_fits <- as.data.frame(t(rac_1S1[,2]))
-S1_2_fits <- as.data.frame(t(rac_2S1[,2]))
-S1_0_RACfit <- radfit(S1_0_fits)
-S1_0_RACfit
-S1_1_RACfit <- radfit(S1_1_fits)
-S1_1_RACfit
-S1_2_RACfit <- radfit(S1_2_fits)
-S1_2_RACfit
-plot(S1_0_RACfit, las=1, cex.lab = 1.4, cex.axis = 1.25)
-plot(S1_1_RACfit, las = 1, cex.lab = 1.4, cex.axis = 1.25)
-plot(S1_2_RACfit, las = 1, cex.lab = 1.4, cex.axis = 1.25)
-
-```
-
-```{r}
-hist_0S1 <- hist(rac_0S1[,2], breaks = 30)
-hist_1S1 <- hist(rac_1S1[,2], breaks = 30)
-hist_2S1 <- hist(rac_2S1[,2], breaks = 30)
-#plot(log(hist_0S1$mids), log(hist_0S1$density))
-points(log(hist_1S1$mids), log(hist_1S1$density), col = "red")
-#points(log(hist_2S1$mids), log(hist_2S1$density), col = "blue")
-```
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
-
-```{r}
-hist <- hist(rac_C1)
-hist.dat <- data.frame(hist$mids,hist$counts,hist$density)
-colnames(hist.dat)<- c("mids", "counts", "density")
-plot(log10(hist.dat$mids), log10(hist.dat$density))
-```
-
-#code that doesn't have a place
-```{r}
-pareto_0S1 <- fitdist(rac_0S1[,2], "pareto", start = list(shape = 0.1, scale = 10))
-lognorm_0S1 <- fitdist(rac_0S1[,2], "lnorm")
-pareto_1S1 <- fitdist(rac_1S1[,2], "pareto", start = list(shape = 0.1, scale = 10))
-lognorm_1S1 <- fitdist(rac_1S1[,2], "lnorm")
-pareto_2S1 <- fitdist(rac_2S1[,2], "pareto", start = list(shape = 0.1, scale = 10))
-lognorm_2S1 <- fitdist(rac_2S1[,2], "lnorm")
-cdfcomp(list(pareto_2S1, lognorm_2S1), xlogscale = FALSE, ylogscale = FALSE)
+plot(ra_Cdist_Spo0A_1day_S1[,2], ra_Cdist_Spo0A_1day_S1[,1], type = 'p', axes = F, xlab = "", ylab = "", las = 1)
+mtext("% of rank-ordered cells \n contributing to activity", side = 1, line = 3.5)
+mtext("Cumulative % \n RedoxSensor Green activity", side = 2, line = 2.5)
+points(ra_Cdist_Spo0A_10day_S1[,2], ra_Cdist_Spo0A_10day_S1[,1], type = 'p', col = "red", cex = 0.75)
+points(ra_Cdist_Spo0A_100day_S1[,2], ra_Cdist_Spo0A_100day_S1[,1], type = 'p', col = "blue", cex = 0.75)
+legend(65,30, c("1 day", "10 day", "100 day"), c("black", "red", "blue")
+abline(1,1)
+text(90,80, "1:1")
+box()
+axis(side = 1, labels = T)
+axis(side = 2, las = 1)
+mtext("Relative abundance", outer = TRUE, cex = 2, line =-2.5)
+dev.off()
 ```
