@@ -1,0 +1,150 @@
+---
+title: "Metabolic Distributions"
+output: pdf_document
+---
+
+```{r}
+rm(list = ls())
+getwd()
+library('ggpmisc')
+
+package.list <- c('BiocManager', 'vegan', 'fitdistrplus', 'ggplot2', 'car', 'here', 'ggcyto', 'actuar', 'tibble', 'ggpubr', 'scales', 'dplyr', 'ggpmisc', 'gdata') 
+
+for (package in package.list) {
+  if (!require(package, character.only=T, quietly=T)) { 
+    install.packages(package, dependencies = TRUE)
+    library(package, character.only=T)
+  } }
+
+BiocManager::valid()
+BiocManager::install("flowCore")
+BiocManager::install("ggcyto")
+BiocManager::install()
+```
+
+```{r figure_setup}
+my.cols <- RColorBrewer::brewer.pal(n = 4, name = "Greys")[3:4]
+
+# Set theme for figures in the paper
+theme_set(theme_classic() + 
+  theme(axis.title = element_text(size = 16),
+        axis.title.x = element_text(margin = margin(t = 15, b = 15)),
+        axis.title.y = element_text(margin = margin(l = 15, r = 15)),
+        axis.text = element_text(size = 14),
+        axis.text.x = element_text(margin = margin(t = 5)),
+        axis.text.y = element_text(margin = margin(r = 5)),
+        #axis.line.x = element_line(size = 1),
+        #axis.line.y = element_line(size = 1),
+        axis.line.x = element_blank(),
+        axis.line.y = element_blank(),
+        axis.ticks.x = element_line(size = 1),
+        axis.ticks.y = element_line(size = 1),
+        axis.ticks.length = unit(.1, "in"),
+        panel.border = element_rect(color = "black", fill = NA, size = 1.5),
+        legend.title = element_blank(),
+        legend.text = element_text(size = 14),
+        strip.text = element_text(size = 14),
+        strip.background = element_blank()
+        ))
+```
+
+#RAC function takes in a list of activity units and returns the list ranked
+```{r}
+RAC <- function(x = ""){
+  x = as.vector(x)
+  x.ab = x[x >0]
+  rac = x.ab[order(x.ab, decreasing = TRUE)]
+  ranks <- as.vector(seq(1,length(rac)))
+  rac <- cbind(ranks, rac)
+  return(as.data.frame(rac))
+}
+
+```
+
+#process function takes in the name of a fcs file, channel to be saved, and scale and returns a ranked rank activity matrix
+```{r}
+processmultiple <- function(x = "", channel = "", scale = "", name = "", desc = ""){
+  n <- 1
+  mynames <- list()
+  #make a list with names of cat(name,desc, sep = "_")
+  raclist <- list()
+  for(file in x){
+    mynames <- cbind(mynames, cat(name,desc,sep = "_"))
+  }
+  
+  for (file in x){
+    if(scale == TRUE){
+      fcs <- flowCore::read.FCS(file = file, transformation = "scale")
+    }
+    else{
+      fcs <- flowCore::read.FCS(file = file)
+    }
+    flow <- flowCore::exprs(fcs)
+    channel <- as.data.frame(flow[,channel])
+    rac <- RAC(x = channel)
+    ranks <- as.vector(seq(1,length(rac)))
+    rac <- cbind(ranks, rac)
+    raclist[[n]] <- as.data.frame(rac)
+    n <- n + 1
+  }
+  names(raclist) <- mynames
+  return(raclist)
+}
+```
+
+```{r}
+process <- function(x = "", channel = "", scale = ""){
+  if(scale == TRUE){
+    fcs <- flowCore::read.FCS(file = x, transformation = "scale")
+  }
+  else{
+    fcs <- flowCore::read.FCS(file = x)
+  }
+  flow <- flowCore::exprs(fcs)
+  RSG_H <- as.data.frame(flow[,channel])
+  rac <- RAC(x = RSG_H)
+  return(rac)
+}
+```
+
+```{r}
+RSG_2.875 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/E6_2.875Ra.fcs", "B530-H")
+RSG_3.25 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/G6_3.25Ra.fcs", "B530-H")
+RSG_3.875 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/A7_3.875Ra.fcs", "B530-H")
+RSG_4.125 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/C7_4.125Ra.fcs", "B530-H")
+RSG_4.375 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/E7_4.375Ra.fcs", "B530-H")
+RSG_4.625 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/G7_4.625Ra.fcs", "B530-H")
+RSG_4.875 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/A8_4.875Ra.fcs", "B530-H")
+RSG_5.125 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/C8_5.125Ra.fcs", "B530-H")
+RSG_5.375 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/E8_5.375Ra.fcs", "B530-H")
+RSG_5.625 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/G8_5.625Ra.fcs", "B530-H")
+
+Chemostat_RSG <- as.data.frame(RSG_2.875$rac)
+Chemostat_RSG <- cbindX(Chemostat_RSG, as.data.frame(RSG_3.25$rac), as.data.frame(RSG_3.875$rac), as.data.frame(RSG_4.125$rac), as.data.frame(RSG_4.375$rac), as.data.frame(RSG_4.625$rac), as.data.frame(RSG_4.875$rac), as.data.frame(RSG_5.125$rac), as.data.frame(RSG_5.375$rac), as.data.frame(RSG_5.625$rac))
+
+colnames(Chemostat_RSG) <- c("RTLC_2.875", "RTLC_3.25", "RTLC_3.875", "RTLC_4.125", "RTLC_4.375", "RTLC_4.625", "RTLC_4.875", "RTLC_5.125", "RTLC_5.375", "RTLC_5.625")
+
+write.csv(Chemostat_RSG, 'Chemostat_RSG.csv')
+
+```
+
+```{r}
+ATP_2.875 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/A9_2.875Aa.fcs", "B586-H")
+ATP_3.25 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/C9_3.25Aa.fcs", "B586-H")
+ATP_3.875 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/E9_3.875Aa.fcs", "B586-H")
+ATP_4.125 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/G9_4.125Aa.fcs", "B586-H")
+ATP_4.375 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/A10_4.375Aa.fcs", "B586-H")
+ATP_4.625 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/C10_4.625Aa.fcs", "B586-H")
+ATP_4.875 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/E10_4.875Aa.fcs", "B586-H")
+ATP_5.125 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/G10_5.125Aa.fcs", "B586-H")
+ATP_5.375 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/A11_5.375Aa.fcs", "B586-H")
+ATP_5.625 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/C11_5.625Aa.fcs", "B586-H")
+
+Chemostat_ATP <- as.data.frame(ATP_2.875$rac)
+Chemostat_ATP <- cbindX(Chemostat_ATP, as.data.frame(ATP_3.25$rac), as.data.frame(ATP_3.875$rac), as.data.frame(ATP_4.125$rac), as.data.frame(ATP_4.375$rac), as.data.frame(ATP_4.625$rac), as.data.frame(ATP_4.875$rac), as.data.frame(ATP_5.125$rac), as.data.frame(ATP_5.375$rac), as.data.frame(ATP_5.625$rac))
+
+colnames(Chemostat_ATP) <- c("RTLC_2.875", "RTLC_3.25", "RTLC_3.875", "RTLC_4.125", "RTLC_4.375", "RTLC_4.625", "RTLC_4.875", "RTLC_5.125", "RTLC_5.375", "RTLC_5.625")
+
+write.csv(Chemostat_ATP, 'Chemostat_ATP.csv')
+
+```
