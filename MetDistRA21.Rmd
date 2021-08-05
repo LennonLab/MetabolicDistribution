@@ -108,6 +108,85 @@ process <- function(x = "", channel = "", scale = ""){
 ```
 
 ```{r}
+BP_fxn <- function(CPMs, Tau, set){
+  ##extract whole experiment info from top of csv
+  
+  #date experiment was run
+  date <- as.Date(as.character(CPMs[1,2]), "%m/%d/%Y")
+
+  
+  #date the standard was produced
+  date_std <- as.Date(as.character(CPMs[2,2]), "%m/%d/%Y")
+  
+  #DPM of the standard at date of production
+  DPM_std <- as.double(as.character(CPMs[3,2]))
+  
+  #DPM of the standard based on scintillation counter on experiment date
+  DPM_curr <- as.double(as.character(CPMs[4,2]))
+  
+  #half life of tritium - 12.346 years
+  half_life <- as.double(as.character(CPMs[5,2]))
+  
+  #Mols of leucine in each tube based on hot leucine stock concentration
+  M_Leu <- as.double(as.character(CPMs[6,2]))
+  
+  #CPMs of the voucher on experiment date
+  Voucher <- as.double(as.character(CPMs[7,2]))
+  
+  ##remove whole experiment info from top of dataframe
+  CPMs <- CPMs[-c(1:9),]
+  colnames(CPMs) <- c("Sample", "CPM", "Kill")
+
+
+  ##calculate time from the experiment date to the standard production date
+  t <- as.numeric(date - date_std)/365
+  
+  ##calculate the expected DPMs of the standard based on t
+  DPM_exp <- (DPM_std)*exp((-0.693/half_life)*t)
+  
+  ##calculate scintillation efficiency as DPM ratio
+  efficiency <- DPM_curr/DPM_exp
+  
+  #divide CPMs into kill and sample dataframes
+  Kills <- subset(CPMs, Kill == "T")
+  CPMs <- subset(CPMs, Kill == "F")
+  
+  #convert CPMs to DPMs, DPMs = CPMs/efficiency
+  CPMs$CPM <- as.numeric(as.character(CPMs$CPM))
+  CPMs$DPM <- CPMs$CPM / efficiency
+  
+  Kills$CPM <- as.numeric(as.character(Kills$CPM))
+  Kills$DPM <- Kills$CPM / efficiency
+  
+  #average DPMs for each sample and add to Tau
+  for(x in unique(CPMs$Sample)){
+    Tau[Tau$Tau == x, "DPM"] <- as.numeric(mean(CPMs[CPMs$Sample == x, "DPM"]))
+  }
+
+  
+  #for each sample, subtract the corresponding kill DPM
+  for (x in unique(Tau$Tau)){
+    if(Tau[Tau$Tau == x, "Set"] == set){
+      Tau[Tau$Tau == x, "DPMKills"] <- Tau[Tau$Tau ==x, "DPM"] - (as.numeric(Kills[Kills$Sample == x, "CPM"])/efficiency)
+    }
+  }
+  
+  #Determine Mols Leucine based on MLeu_sample = MLeu * DPM/voucher
+  Tau$MLeu <- (M_Leu * Tau$DPMKills)/Voucher
+  
+  #Convert MLeu to ug C/L/hr
+  Tau$ugCLhr <- Tau$MLeu * 131.2 * (1/0.073)*0.86*2*1000000
+  
+  
+  Tau$uMChr <- Tau$ugCLhr *0.083333
+  
+  Tau$log_uMChr <- log(Tau$uMChr, 10)
+  
+  return(Tau[,c( "Set", "Tau", "Date", "uMChr", "log_uMChr")])
+}
+```
+
+```{r}
 RSG_2.875 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/E6_2.875Ra.fcs", "B530-H")
 RSG_3.25 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/G6_3.25Ra.fcs", "B530-H")
 RSG_3.875 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/A7_3.875Ra.fcs", "B530-H")
@@ -147,4 +226,12 @@ colnames(Chemostat_ATP) <- c("RTLC_2.875", "RTLC_3.25", "RTLC_3.875", "RTLC_4.12
 
 write.csv(Chemostat_ATP, 'Chemostat_ATP.csv')
 
+```
+
+```{r}
+Chemostat_Samples <- read.csv("data/20210729_RTLC_S3_SYBR_RSG_ATP/Chemostat_Samples.csv")
+Chemostat_CPM <- read.csv("data/20210729_RTLC_S3_SYBR_RSG_ATP/20210723_RTLC_S3_BP.csv", header = FALSE)
+Chemostat_Samples <- as.data.frame(BP_fxn(Chemostat_CPM, Chemostat_Samples, "RTLC"))
+
+write.csv(Chemostat_Samples, 'Chemostat_Meta.csv')
 ```
