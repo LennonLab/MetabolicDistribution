@@ -67,7 +67,7 @@ RAC <- function(x = ""){
 _
 ```{r}
 mempotratio <-function(x = "", green_channel = "", red_channel = ""){
-  fcs <- flowCore::read.FCS(file = x)
+  fcs <- flowCore::read.fcs(file = x)
   flow <- flowCore::exprs(fcs)
   ratio <- as.data.frame(flow[,red_channel] - flow[,green_channel] + (1.5*2330169))
   rac <- RAC(x = ratio)
@@ -148,31 +148,32 @@ CDist <- function(x = ""){
 
 #Titration test for ATP-Red and RSG with Jordan River Samples
 ```{r}
-JR_100 <- flowCore::read.FCS(file = "./data/20210713_MetDist_JR_RSG_ATP/A1_JR_100.fcs")
-JR_10 <- flowCore::read.FCS(file = "./data/20210713_MetDist_JR_RSG_ATP/B1_JR_10.fcs")
-JR_1 <- flowCore::read.FCS(file = "./data/20210713_MetDist_JR_RSG_ATP/C1_JR_1.fcs")
-JR_100_ATP_10 <- flowCore::read.FCS(file = "./data/20210713_MetDist_JR_RSG_ATP/A4_JR_100_ATP_10.fcs")
-JR_10_ATP_10 <- flowCore::read.FCS(file = "./data/20210713_MetDist_JR_RSG_ATP/B4_JR_10_ATP_10.fcs")
-JR_1_ATP_10 <- flowCore::read.FCS(file = "./data/20210713_MetDist_JR_RSG_ATP/C4_JR_1_ATP_10.fcs")
-JR_100_ATP_5 <- flowCore::read.FCS(file = "./data/20210713_MetDist_JR_RSG_ATP/D4_JR_100_ATP_5.fcs")
-JR_10_ATP_5 <- flowCore::read.FCS(file = "./data/20210713_MetDist_JR_RSG_ATP/A5_JR_10_ATP_5.fcs")
-JR_1_ATP_5 <- flowCore::read.FCS(file = "./data/20210713_MetDist_JR_RSG_ATP/B5_JR_1_ATP_5.fcs")
-JR_100_ATP_1 <- flowCore::read.FCS(file = "./data/20210713_MetDist_JR_RSG_ATP/C5_JR_100_ATP_1.fcs")
-JR_10_ATP_1 <- flowCore::read.FCS(file = "./data/20210713_MetDist_JR_RSG_ATP/D5_JR_10_ATP_1.fcs")
-JR_1_ATP_1 <- flowCore::read.FCS(file = "./data/20210713_MetDist_JR_RSG_ATP/A6_JR_1_ATP_1.fcs")
+here()
+JR_100 <- flowCore::read.FCS(here("data","MetDistRA21", "20210713_JR_Titration_RSG_ATP", "A1_JR_100.fcs"))
+JR_10 <- flowCore::read.FCS(here("data","MetDistRA21", "20210713_JR_Titration_RSG_ATP", "B1_JR_10.fcs"))
+JR_1 <- flowCore::read.FCS(here("data","MetDistRA21", "20210713_JR_Titration_RSG_ATP", "C1_JR_1.fcs"))
+JR_100_ATP_10 <- flowCore::read.FCS(here("data","MetDistRA21", "20210713_JR_Titration_RSG_ATP", "A4_JR_100_ATP_10.fcs"))
+JR_10_ATP_10 <- flowCore::read.FCS(here("data","MetDistRA21", "20210713_JR_Titration_RSG_ATP", "B4_JR_10_ATP_10.fcs"))
+JR_1_ATP_10 <- flowCore::read.FCS(here("data","MetDistRA21", "20210713_JR_Titration_RSG_ATP", "C4_JR_1_ATP_10.fcs"))
+JR_100_ATP_5 <- flowCore::read.FCS(here("data","MetDistRA21", "20210713_JR_Titration_RSG_ATP", "D4_JR_100_ATP_5.fcs"))
+JR_10_ATP_5 <- flowCore::read.FCS(here("data","MetDistRA21", "20210713_JR_Titration_RSG_ATP", "A5_JR_10_ATP_5.fcs"))
+JR_1_ATP_5 <- flowCore::read.FCS(here("data","MetDistRA21", "20210713_JR_Titration_RSG_ATP", "B5_JR_1_ATP_5.fcs"))
+JR_100_ATP_1 <- flowCore::read.FCS(here("data","MetDistRA21", "20210713_JR_Titration_RSG_ATP", "C5_JR_100_ATP_1.fcs"))
+JR_10_ATP_1 <- flowCore::read.FCS(here("data","MetDistRA21", "20210713_JR_Titration_RSG_ATP", "D5_JR_10_ATP_1.fcs"))
+JR_1_ATP_1 <- flowCore::read.FCS(here("data","MetDistRA21", "20210713_JR_Titration_RSG_ATP", "A6_JR_1_ATP_1.fcs"))
 
-JR_100_ATP_Un <- process("./data/20210713_MetDist_JR_RSG_ATP/A1_JR_100.fcs", "B586-H")
-JR_10_ATP_Un <- process("./data/20210713_MetDist_JR_RSG_ATP/B1_JR_10.fcs", "B586-H")
-JR_1_ATP_Un <- process("./data/20210713_MetDist_JR_RSG_ATP/C1_JR_1.fcs", "B586-H")
-JR_100_ATP_10 <- process("./data/20210713_MetDist_JR_RSG_ATP/A4_JR_100_ATP_10.fcs", "B586-H")
-JR_10_ATP_10 <- process("./data/20210713_MetDist_JR_RSG_ATP/B4_JR_10_ATP_10.fcs", "B586-H")
-JR_1_ATP_10 <- process("./data/20210713_MetDist_JR_RSG_ATP/C4_JR_1_ATP_10.fcs", "B586-H")
-JR_100_ATP_5 <- process("./data/20210713_MetDist_JR_RSG_ATP/D4_JR_100_ATP_5.fcs", "B586-H")
-JR_10_ATP_5 <- process("./data/20210713_MetDist_JR_RSG_ATP/A5_JR_10_ATP_5.fcs", "B586-H")
-JR_1_ATP_5 <- process("./data/20210713_MetDist_JR_RSG_ATP/B5_JR_1_ATP_5.fcs", "B586-H")
-JR_100_ATP_1 <- process("./data/20210713_MetDist_JR_RSG_ATP/C5_JR_100_ATP_1.fcs", "B586-H")
-JR_10_ATP_1 <- process("./data/20210713_MetDist_JR_RSG_ATP/D5_JR_10_ATP_1.fcs", "B586-H")
-JR_1_ATP_1 <- process("./data/20210713_MetDist_JR_RSG_ATP/A6_JR_1_ATP_1.fcs", "B586-H")
+JR_100_ATP_Un <- process(here("data","MetDistRA21", "20210713_JR_Titration_RSG_ATP", "A1_JR_100.fcs"), "B586-H")
+JR_10_ATP_Un <- process(here("data","MetDistRA21", "20210713_JR_Titration_RSG_ATP", "B1_JR_10.fcs"), "B586-H")
+JR_1_ATP_Un <- process(here("data","MetDistRA21", "20210713_JR_Titration_RSG_ATP", "C1_JR_1.fcs"), "B586-H")
+JR_100_ATP_10 <- process(here("data","MetDistRA21", "20210713_JR_Titration_RSG_ATP", "A4_JR_100_ATP_10.fcs"), "B586-H")
+JR_10_ATP_10 <- process(here("data","MetDistRA21", "20210713_JR_Titration_RSG_ATP", "B4_JR_10_ATP_10.fcs"), "B586-H")
+JR_1_ATP_10 <- process(here("data","MetDistRA21", "20210713_JR_Titration_RSG_ATP", "C4_JR_1_ATP_10.fcs"), "B586-H")
+JR_100_ATP_5 <- process(here("data","MetDistRA21", "20210713_JR_Titration_RSG_ATP", "D4_JR_100_ATP_5.fcs"), "B586-H")
+JR_10_ATP_5 <- process(here("data","MetDistRA21", "20210713_JR_Titration_RSG_ATP", "A5_JR_10_ATP_5.fcs"), "B586-H")
+JR_1_ATP_5 <- process(here("data","MetDistRA21", "20210713_JR_Titration_RSG_ATP", "B5_JR_1_ATP_5.fcs"), "B586-H")
+JR_100_ATP_1 <- process(here("data","MetDistRA21", "20210713_JR_Titration_RSG_ATP", "C5_JR_100_ATP_1.fcs"), "B586-H")
+JR_10_ATP_1 <- process(here("data","MetDistRA21", "20210713_JR_Titration_RSG_ATP", "D5_JR_10_ATP_1.fcs"), "B586-H")
+JR_1_ATP_1 <- process(here("data","MetDistRA21", "20210713_JR_Titration_RSG_ATP", "A6_JR_1_ATP_1.fcs"), "B586-H")
 
 JR_1_ATP_10_CD <- CDist(JR_1_ATP_10[,2])
 JR_1_ATP_5_CD <- CDist(JR_1_ATP_5[,2])
@@ -183,7 +184,7 @@ JR_1_CD <- CDist(JR_1_ATP_Un[,2])
 plot(JR_1_CD[,2], JR_1_CD[,1], type = 'p', xlab = "", ylab = "", cex = 0.25, col = "red", yaxt = "n", xaxt = "n")
 points(JR_1_ATP_10_CD[,2], JR_1_ATP_10_CD[,1], type = 'p', cex = 0.25)
 points(JR_1_ATP_5_CD[,2], JR_1_ATP_5_CD[,1], type = 'p', cex = 0.25)
-points(JR_1_ATP_1_CD[,2], JR_1_ATP_1_CD[,1], type = 'p', cex = 0.25, , col = "green")
+points(JR_1_ATP_1_CD[,2], JR_1_ATP_1_CD[,1], type = 'p', cex = 0.25, col = "green")
 mtext("% of rank-ordered cells \ncontributing to activity", side = 1, line = 2, cex = 0.8)
 mtext("Cumulative % \nmembrane potential", side = 2, line = 1.1, cex = 0.8)
 axis(2, at = c(0,20,40,60,80,100), labels = c("0","20","40","60","80","100"), cex.axis=0.7, mgp = c(3,0.5,0))
@@ -224,17 +225,19 @@ JR_ATP <- ggplot(JR_100_ATP_Un, aes(x = log(rac), color = "100", fill = "Unstain
 
 JR_ATP
 
+ggsave(here("output", "JR_ATP_titration.png"))
+ggsave(here("output", "JR_ATP_titration.pdf"))
+
 ```
 #processing of strains from Jake for QUEEN ratio (V530/B530) and QUEEN ratio plots
 ```{r}
-PBS_04 <- flowCore::read.FCS(file = "./data/20210704_MetDist/A1_PBS.fcs")
-Ecoli_04 <- flowCore::read.FCS(file = "./data/20210704_MetDist/B1_Ecoli.fcs")
-QNA_04 <- flowCore::read.FCS(file = "./data/20210704_MetDist/C1_QNA.fcs")
-QUE7_04 <- flowCore::read.FCS(file = "./data/20210704_MetDist/D1_QUE7.fcs")
-QUE2_04 <- flowCore::read.FCS(file = "./data/20210704_MetDist/A2_QUE2.fcs")
-REXYFP_04 <- flowCore::read.FCS(file = "./data/20210704_MetDist/B2_REXYFP.fcs")
-Peredox_04 <- flowCore::read.FCS(file = "./data/20210704_MetDist/C2_Peredox.fcs")
-summary(PBS_04)
+PBS_04 <- flowCore::read.FCS(here("data", "MetDist_Strains", "20210704_MetDist", "A1_PBS.fcs"))
+Ecoli_04 <- flowCore::read.FCS(here("data", "MetDist_Strains", "20210704_MetDist", "B1_Ecoli.fcs"))
+QNA_04 <- flowCore::read.FCS(here("data", "MetDist_Strains", "20210704_MetDist", "C1_QNA.fcs"))
+QUE7_04 <- flowCore::read.FCS(here("data", "MetDist_Strains", "20210704_MetDist", "D1_QUE7.fcs"))
+QUE2_04 <- flowCore::read.FCS(here("data", "MetDist_Strains", "20210704_MetDist", "A2_QUE2.fcs"))
+REXYFP_04 <- flowCore::read.FCS(here("data", "MetDist_Strains", "20210704_MetDist", "B2_REXYFP.fcs"))
+Peredox_04 <- flowCore::read.FCS(here("data", "MetDist_Strains", "20210704_MetDist", "C2_Peredox.fcs"))
   
 QUE2_Ratio <- as.data.frame(flowCore::exprs(QUE2_04)[,c("B530-H", "V530-H")])
 QUE2_Ratio$Ratio <- QUE2_Ratio$`V530-H`/QUE2_Ratio$`B530-H`
@@ -260,8 +263,8 @@ QUEEN <- ggplot(data = ratios, aes(x = group, y = value))+
 
 QUEEN
 
-ggsave(here("output", "QUEEN.png"))
-ggsave(here("output", "QUEEN.png"))
+ggsave(here("output", "QUEEN_ratio.png"))
+ggsave(here("output", "QUEEN_ratio.pdf"))
 
 QUEEN_hist <- ggplot(QNA_Ratio, aes(x = Ratio, color = "QNA", fill = "QNA"))+
   geom_histogram(binwidth = 0.25)+
@@ -285,13 +288,13 @@ ggsave(here("output", "QUEEN_hist.pdf"))
 ```
 #processing of strains from Jake for mCherry and Peredox plots
 ```{r}
-PBS_04_rac_y615 <- process("./data/20210704_MetDist/A1_PBS.fcs", "Y615-H")
-Ecoli_04_rac_y615 <- process("./data/20210704_MetDist/B1_Ecoli.fcs", "Y615-H")
-QNA_04_rac_y615 <- process("./data/20210704_MetDist/C1_QNA.fcs", "Y615-H")
-QUE7_04_rac_y615 <- process("./data/20210704_MetDist/D1_QUE7.fcs", "Y615-H")
-QUE2_04_rac_y615 <- process("./data/20210704_MetDist/A2_QUE2.fcs", "Y615-H")
-REXYFP_04_rac_y615 <- process("./data/20210704_MetDist/B2_REXYFP.fcs", "Y615-H")
-Peredox_04_rac_y615 <- process("./data/20210704_MetDist/C2_Peredox.fcs", "Y615-H")
+PBS_04_rac_y615 <- process(here("data", "MetDist_Strains", "20210704_MetDist", "A1_PBS.fcs"), "Y615-H")
+Ecoli_04_rac_y615 <- process(here("data", "MetDist_Strains", "20210704_MetDist", "B1_Ecoli.fcs"), "Y615-H")
+QNA_04_rac_y615 <- process(here("data", "MetDist_Strains", "20210704_MetDist", "C1_QNA.fcs"), "Y615-H")
+QUE7_04_rac_y615 <- process(here("data", "MetDist_Strains", "20210704_MetDist", "D1_QUE7.fcs"), "Y615-H")
+QUE2_04_rac_y615 <- process(here("data", "MetDist_Strains", "20210704_MetDist", "A2_QUE2.fcs"), "Y615-H")
+REXYFP_04_rac_y615 <- process(here("data", "MetDist_Strains", "20210704_MetDist", "B2_REXYFP.fcs"), "Y615-H")
+Peredox_04_rac_y615 <- process(here("data", "MetDist_Strains", "20210704_MetDist", "C2_Peredox.fcs"), "Y615-H")
 
 
 
@@ -309,7 +312,7 @@ colnames(hist.dat)<- c("mids", "counts", "density")
 plot(log10(hist.dat$mids), log10(hist.dat$density))
 
 
-Peredox <- ggplot(PBS_04_rac_y615, aes(x = log(rac), color = "PBS", fill = "PBS"))+
+mCherry <- ggplot(PBS_04_rac_y615, aes(x = log(rac), color = "PBS", fill = "PBS"))+
   geom_histogram(binwidth = 0.25)+
   geom_histogram(data = Ecoli_04_rac_y615, aes(x = log(rac), color = "Ecoli", fill = "Ecoli"),
                  binwidth = 0.25)+
@@ -332,64 +335,24 @@ Peredox <- ggplot(PBS_04_rac_y615, aes(x = log(rac), color = "PBS", fill = "PBS"
   xlab("Y615-H")+
   scale_x_continuous(labels = label_math(expr = 10^.x, format = force))
 
-Peredox
+mCherry
 
-ggsave(here("output", "Peredox_04.png"))
-ggsave(here("output", "Peredox_04.png"))
+ggsave(here("output", "mCherry_counts.png"))
+ggsave(here("output", "mCherry_counts.pdf"))
 ```
 
-#Comparison of CCCP and non-CCCP E.coli samples
-```{r}
-aa_GC <- processmultiple(c("./data/FCS/EAM_20190531_GrowthCurve/Specimen1_T1_S.fcs","./data/FCS/EAM_20190531_GrowthCurve/Specimen1_T1_S.fcs"), "BL1-H", FALSE, "aa_rac_Ecoli_GC", c(1, 2))
-names(aa_GC)
-
-EC_MP <- mempotratio("./data/FCS/EAM_20190607_MemPot/Specimen1_EC_MP_T5.fcs", "BL1-H", "BL4-H")
-EC_MP_CCCP <- mempotratio("./data/FCS/EAM_20190607_MemPot/Specimen1_EC_MP_CCCP_T5.fcs", "BL1-H", "BL4-H")
-
-p1 <- hist(log(EC_MP[,2]))
-p2 <- hist(log(EC_MP_CCCP[,2]))
-
-plot(p1, col=rgb(0,0,1,1/4), xlim=c(14,16), ylim = c(0, 25000))
-plot(p2, col=rgb(1,0,0,1/4), xlim= c(14,16), ylim = c(0,25000), add = T)
-```
-
-
-
-```{r}
-MempotNOCCCP <- mempotratio("./data/FCS/EAM_20190605_MemPot_Test/Specimen1_ECOLI-CCCP_E1.fcs", "BL4-H", "BL1-H")
-MempotCCCP <- mempotratio("./data/FCS/EAM_20190605_MemPot_Test/Specimen1_ECOLI+CCCP_E1.fcs", "BL4-H", "BL1-H")
-
-par(fig = c(0,0.525,0,1))
-plot(MempotNOCCCP[,1], MempotNOCCCP[,2], type = 'p', xlab = "", ylab = "", cex = 0.25, col = "red", yaxt = "n", xaxt = "n")
-points(MempotCCCP[,1], MempotCCCP[,2], type = 'p', cex = 0.25)
-mtext("Rank in membrane potential", side = 1, line = 1.1, cex = 0.8)
-mtext("log(mem pot ratio)", side = 2, line = 1.1, cex = 0.8)
-axis(2,cex.axis=0.7,  mgp = c(3, 0.5, 0))
-axis(1, cex.axis = 0.7, mgp = c(3, 0.5, 0))
-
-CdistMempotNOCCCP <- CDist(MempotNOCCCP[,2])
-CdistMempotCCCP <- CDist(MempotCCCP[,2])
-
-par(fig = c(0.475, 1,0,1), new = TRUE)
-plot(CdistMempotNOCCCP[,2], CdistMempotNOCCCP[,1], type = 'p', xlab = "", ylab = "", cex = 0.25, col = "red", yaxt = "n", xaxt = "n")
-points(CdistMempotCCCP[,2], CdistMempotCCCP[,1], type = 'p', cex = 0.25)
-mtext("% of rank-ordered cells \ncontributing to activity", side = 1, line = 2, cex = 0.8)
-mtext("Cumulative % \nmembrane potential", side = 2, line = 1.1, cex = 0.8)
-axis(2, at = c(0,20,40,60,80,100), labels = c("0","20","40","60","80","100"), cex.axis=0.7, mgp = c(3,0.5,0))
-axis(1, cex.axis = 0.7, mgp = c(3,0.5,0), at = c(0,20,40,60,80,100), labels = TRUE)
-```
 
 #GROWTH CURVE ANALYSIS
 
 ##Process growth rate fcs files
 ```{r}
-aa_rac_Ecoli_GC_1 <- process("./data/FCS/EAM_20190531_GrowthCurve/Specimen1_T1_S.fcs", "BL1-H")
-aa_rac_Ecoli_GC_2 <- process("./data/FCS/EAM_20190531_GrowthCurve/Specimen1_T2_S.fcs", "BL1-H")
-aa_rac_Ecoli_GC_3 <- process("./data/FCS/EAM_20190531_GrowthCurve/Specimen1_T3_S.fcs", "BL1-H")
-aa_rac_Ecoli_GC_4 <- process("./data/FCS/EAM_20190531_GrowthCurve/Specimen1_T4_S.fcs", "BL1-H")
-aa_rac_Ecoli_GC_5 <- process("./data/FCS/EAM_20190531_GrowthCurve/Specimen1_T5_S.fcs", "BL1-H")
-aa_rac_Ecoli_GC_6 <- process("./data/FCS/EAM_20190531_GrowthCurve/Specimen1_T6_S.fcs", "BL1-H")
-aa_rac_Ecoli_GC_7 <- process("./data/FCS/EAM_20190531_GrowthCurve/Specimen1_T7_S.fcs", "BL1-H")
+aa_rac_Ecoli_GC_1 <- process(here("data", "GrowthCurve", "EAM_20190531_GrowthCurve", "Specimen1_T1_S.fcs"), "BL1-H")
+aa_rac_Ecoli_GC_2 <- process(here("data", "GrowthCurve", "EAM_20190531_GrowthCurve", "Specimen1_T2_S.fcs"), "BL1-H")
+aa_rac_Ecoli_GC_3 <- process(here("data", "GrowthCurve", "EAM_20190531_GrowthCurve", "Specimen1_T3_S.fcs"), "BL1-H")
+aa_rac_Ecoli_GC_4 <- process(here("data", "GrowthCurve", "EAM_20190531_GrowthCurve", "Specimen1_T4_S.fcs"), "BL1-H")
+aa_rac_Ecoli_GC_5 <- process(here("data", "GrowthCurve", "EAM_20190531_GrowthCurve", "Specimen1_T5_S.fcs"), "BL1-H")
+aa_rac_Ecoli_GC_6 <- process(here("data", "GrowthCurve", "EAM_20190531_GrowthCurve", "Specimen1_T6_S.fcs"), "BL1-H")
+aa_rac_Ecoli_GC_7 <- process(here("data", "GrowthCurve", "EAM_20190531_GrowthCurve", "Specimen1_T7_S.fcs"), "BL1-H")
 aa_Cdist_Ecoli_GC_1 <- CDist(aa_rac_Ecoli_GC_1[,2])
 aa_Cdist_Ecoli_GC_2 <- CDist(aa_rac_Ecoli_GC_2[,2])
 aa_Cdist_Ecoli_GC_3 <- CDist(aa_rac_Ecoli_GC_3[,2])
@@ -398,13 +361,13 @@ aa_Cdist_Ecoli_GC_5 <- CDist(aa_rac_Ecoli_GC_5[,2])
 aa_Cdist_Ecoli_GC_6 <- CDist(aa_rac_Ecoli_GC_6[,2])
 aa_Cdist_Ecoli_GC_7 <- CDist(aa_rac_Ecoli_GC_7[,2])
 
-ra_rac_Ecoli_GC_1 <- process("./data/FCS/EAM_20190531_GrowthCurve/Specimen1_T1_S.fcs", "BL1-H", TRUE)
-ra_rac_Ecoli_GC_2 <- process("./data/FCS/EAM_20190531_GrowthCurve/Specimen1_T2_S.fcs", "BL1-H", TRUE)
-ra_rac_Ecoli_GC_3 <- process("./data/FCS/EAM_20190531_GrowthCurve/Specimen1_T3_S.fcs", "BL1-H", TRUE)
-ra_rac_Ecoli_GC_4 <- process("./data/FCS/EAM_20190531_GrowthCurve/Specimen1_T4_S.fcs", "BL1-H", TRUE)
-ra_rac_Ecoli_GC_5 <- process("./data/FCS/EAM_20190531_GrowthCurve/Specimen1_T5_S.fcs", "BL1-H", TRUE)
-ra_rac_Ecoli_GC_6 <- process("./data/FCS/EAM_20190531_GrowthCurve/Specimen1_T6_S.fcs", "BL1-H", TRUE)
-ra_rac_Ecoli_GC_7 <- process("./data/FCS/EAM_20190531_GrowthCurve/Specimen1_T7_S.fcs", "BL1-H", TRUE)
+ra_rac_Ecoli_GC_1 <- process(here("data", "GrowthCurve", "EAM_20190531_GrowthCurve", "Specimen1_T1_S.fcs"), "BL1-H", TRUE)
+ra_rac_Ecoli_GC_2 <- process(here("data", "GrowthCurve", "EAM_20190531_GrowthCurve", "Specimen1_T2_S.fcs"), "BL1-H", TRUE)
+ra_rac_Ecoli_GC_3 <- process(here("data", "GrowthCurve", "EAM_20190531_GrowthCurve", "Specimen1_T3_S.fcs"), "BL1-H", TRUE)
+ra_rac_Ecoli_GC_4 <- process(here("data", "GrowthCurve", "EAM_20190531_GrowthCurve", "Specimen1_T4_S.fcs"), "BL1-H", TRUE)
+ra_rac_Ecoli_GC_5 <- process(here("data", "GrowthCurve", "EAM_20190531_GrowthCurve", "Specimen1_T5_S.fcs"), "BL1-H", TRUE)
+ra_rac_Ecoli_GC_6 <- process(here("data", "GrowthCurve", "EAM_20190531_GrowthCurve", "Specimen1_T6_S.fcs"), "BL1-H", TRUE)
+ra_rac_Ecoli_GC_7 <- process(here("data", "GrowthCurve", "EAM_20190531_GrowthCurve", "Specimen1_T7_S.fcs"), "BL1-H", TRUE)
 ra_Cdist_Ecoli_GC_1 <- CDist(ra_rac_Ecoli_GC_1[,2])
 ra_Cdist_Ecoli_GC_2 <- CDist(ra_rac_Ecoli_GC_2[,2])
 ra_Cdist_Ecoli_GC_3 <- CDist(ra_rac_Ecoli_GC_3[,2])
@@ -413,7 +376,7 @@ ra_Cdist_Ecoli_GC_5 <- CDist(ra_rac_Ecoli_GC_5[,2])
 ra_Cdist_Ecoli_GC_6 <- CDist(ra_rac_Ecoli_GC_6[,2])
 ra_Cdist_Ecoli_GC_7 <- CDist(ra_rac_Ecoli_GC_7[,2])
 
-OD600_Ecoli_GC <- read.table(file = "./data/FCS/EAM_20190531_GrowthCurve/20190531_EAM_GrowthCurve.txt", header = TRUE, sep = "\t")
+OD600_Ecoli_GC <- read.table(here("data", "GrowthCurve", "EAM_20190531_GrowthCurve", "20190531_EAM_GrowthCurve.txt"), header = TRUE, sep = "\t")
 
 ```
 
@@ -444,7 +407,7 @@ predict_abscount<-data.frame(x,y)
 #Growth Curve OD600 vs. Abs count fits
 ```{r}
 #generate png file
-png(filename="./output/GrowthCurve.OD600_abscount_fits.png",
+png(here("output", "GrowthCurve.OD600_abscount_fits.png"),
      width = 900, height = 900, res = 96*2)
 
 par(fig=c(0,1,0.35,1))
@@ -471,7 +434,7 @@ dev.off()
 #GC lines relative abundance CDF and RAC using OD600
 ```{r}
 #generate png file
-png(filename="./output/GrowthCurve.RSGdistribution.png",
+png(here("output", "GrowthCurve.RSGdistribution.png"),
      width = 900, height = 900, res = 96*2)
 
 par(fig=c(0,1,0.4,1))
@@ -551,7 +514,7 @@ GC <- data.frame(deriv, OD600_Ecoli_GC$OD600, OD600_Ecoli_GC$abs_count, shape, s
 names(GC) <- c("SGR", "OD600", "abs_count", "shape", "scale")
 plot(GC$abs_count, GC$scale)
 
-png(filename="./output/GrowthCurve.Pareto_parameters.png",
+png(here("output", "GrowthCurve.Pareto_parameters.png"),
      width = 900, height = 900, res = 96*2)
 
 par(fig=c(0,0.5,0.5,1))
@@ -598,29 +561,36 @@ dev.off()
 ```
 
 
-#MURI LINES
+#fcs LINES
 
-#Process MURI lines for and return ranked lists
+#Process fcs lines for and return ranked lists
 ```{r}
 #relative abundance
-ra_rac_Spo0A_1day_S1 <- process("./data/FCS/EAM_20190403_MURI_1day/Stained_0S1.fcs", "BL1-H", TRUE)
-ra_rac_Spo0A_10day_S1 <- process("./data/FCS/EAM_20190403_MURI_10day/Specimen1_1S2.fcs", "BL1-H", TRUE)
-ra_rac_Spo0A_100day_S1 <- process("./data/FCS/EAM_20190403_MURI_100day/Stained_2S1-1.fcs", "BL1-H", TRUE)
+ra_rac_Spo0A_1day_S1 <- process(here("data", "MURI", "EAM_20190403_MURI_1day", "Stained_0S1.fcs"), "BL1-H", TRUE)
+ra_rac_Spo0A_10day_S1 <- process(here("data", "MURI", "EAM_20190403_MURI_10day", "Specimen1_1S2.fcs"), "BL1-H", TRUE)
+ra_rac_Spo0A_100day_S1 <- process(here("data", "MURI", "EAM_20190403_MURI_100day", "Stained_2S1-1.fcs"), "BL1-H", TRUE)
 ra_Cdist_Spo0A_1day_S1 <- CDist(ra_rac_Spo0A_1day_S1[,2])
 ra_Cdist_Spo0A_10day_S1 <- CDist(ra_rac_Spo0A_10day_S1[,2])
 ra_Cdist_Spo0A_100day_S1 <- CDist(ra_rac_Spo0A_100day_S1[,2])
 
 #absolute abundance
-aa_rac_Spo0A_1day_S1 <- process("./data/FCS/EAM_20190403_MURI_1day/Stained_0S1.fcs", "BL1-H")
-aa_rac_Spo0A_10day_S1 <- process("./data/FCS/EAM_20190403_MURI_10day/Specimen1_1S2.fcs", "BL1-H")
-aa_rac_Spo0A_100day_S1 <- process("./data/FCS/EAM_20190403_MURI_100day/Stained_2S1-1.fcs", "BL1-H")
+aa_rac_Spo0A_1day_S1 <- process(here("data", "MURI", "EAM_20190403_MURI_1day", "Stained_0S1.fcs"), "BL1-H")
+aa_rac_Spo0A_10day_S1 <- process(here("data", "MURI", "EAM_20190403_MURI_10day", "Specimen1_1S2.fcs"), "BL1-H")
+aa_rac_Spo0A_100day_S1 <- process(here("data", "MURI", "EAM_20190403_MURI_100day", "Stained_2S1-1.fcs"), "BL1-H")
 aa_Cdist_Spo0A_1day_S1 <- CDist(aa_rac_Spo0A_1day_S1[,2])
 aa_Cdist_Spo0A_10day_S1 <- CDist(aa_rac_Spo0A_10day_S1[,2])
 aa_Cdist_Spo0A_100day_S1 <- CDist(aa_rac_Spo0A_100day_S1[,2])
 
 ```
-#fit lognormal and poisson distributions for MURI data
+#fit lognormal and poisson distributions for muri data
 ```{r}
+aa_1day_rare <- sample_n(aa_rac_Spo0A_1day_S1, length(aa_rac_Spo0A_100day_S1[,2]))
+aa_10day_rare <- sample_n(aa_rac_Spo0A_10day_S1,length(aa_rac_Spo0A_100day_S1[,2]))
+aa_1day_rare <- RAC(aa_1day_rare[,2])
+aa_10day_rare <- RAC(aa_10day_rare[,2])
+aa_Cdist_1day_rare <- CDist(aa_1day_rare[,2])
+aa_Cdist_10day_rare <- CDist(aa_10day_rare[,2])
+
 # create a vector of histogram breaks
 x_1 <- as.integer(seq(0,max(aa_1day_rare[,2]),length=100))
 x_10 <- as.integer(seq(0, max(aa_10day_rare[,2]), length=100))
@@ -631,69 +601,50 @@ hst_1 <- hist(aa_1day_rare[,2], breaks=x_1)
 hst_10 <- hist(aa_10day_rare[,2], breaks = x_10)
 hst_100 <- hist(aa_rac_Spo0A_100day_S1[,2], breaks = x_100)
 
-# fit a lognormal distribution
-fit_lognormal_100 <- fitdistr(as.integer(hst_100$counts),"lognormal")
-fit_lognormal_10 <- fitdistr(as.integer(hst_10$mids), "lognormal")
-fit_lognormal_1 <- fitdistr(as.integer(hst_1$mids), "lognormal")
-fit_poisson_1 <- fitdistr(as.integer(hst_1$counts), "poisson")
-fit_poisson_10 <- fitdistr(as.integer(hst_10$counts), "poisson")
-fit_poisson_100 <- fitdistr(as.integer(hst_100$counts), "poisson")
-
-AIC(fit_lognormal_100, fit_poisson_100)
-AIC(fit_lognormal_10, fit_poisson_10)
-AIC(fit_lognormal_1, fit_poisson_1)
-
-# generate values given our fit parameters
-fit_1 <- dlnorm(x_1, fit_lognormal_1$estimate['meanlog'], fit_lognormal_1$estimate['sdlog'])
-fit_10 <- dlnorm(x_10, fit_lognormal_10$estimate['meanlog'], fit_lognormal_10$estimate['sdlog'])
-fit_100 <- dlnorm(x_100, fit_lognormal_100$estimate['meanlog'], fit_lognormal_100$estimate['sdlog'])
-fit_1 <- dpois(x_1, fit_poisson_1$estimate['lambda'])
-fit_10 <- dpois(x_10, fit_poisson_10$estimate['lambda'])
-fit_100 <- dpois(x_100, fit_poisson_100$estimate['lambda'])
-
-# plot the fit and original distributions
-
-plot(x_1, fit_1, type="l", ylab="Density",xlab="X")
-title(main = "Density histogram with lognormal fit")
-lines(hst_1$mid, hst_1$density, type="l", col="red")
-legend(8,0.15,legend=c("Fit","Data"),lty=c(1,1),col=c("black","red"))
-
-plot(x_10, fit_10, type="l", ylab="Density", xlab="X", xlim = c(0, max(hst_10$mids)), ylim = c(0, max(hst_10$density)))
-title(main = "Density histogram with lognormal fit")
-lines(hst_10$mid, hst_10$density, type="l", col="red")
-legend(8,0.15,legend=c("Fit","Data"),lty=c(1,1),col=c("black","red"))
-
-plot(x_100, fit_100, type="l", ylab="Density",
-     xlab="X", ylim=c(0,max(hst_100$density)), xlim=c(0,max(hst_100$mid)))
-title(main = "Density histogram with lognormal fit")
-lines(hst_100$mid, hst_100$density, type="l", col="red")
-legend(8,0.15,legend=c("Fit","Data"),lty=c(1,1),col=c("black","red"))
+# # fit a lognormal distribution
+# fit_lognormal_100 <- fitdistr(as.integer(hst_100$counts),"lognormal")
+# fit_lognormal_10 <- fitdistr(as.integer(hst_10$mids), "lognormal")
+# fit_lognormal_1 <- fitdistr(as.integer(hst_1$mids), "lognormal")
+# fit_poisson_1 <- fitdistr(as.integer(hst_1$counts), "poisson")
+# fit_poisson_10 <- fitdistr(as.integer(hst_10$counts), "poisson")
+# fit_poisson_100 <- fitdistr(as.integer(hst_100$counts), "poisson")
+# 
+# AIC(fit_lognormal_100, fit_poisson_100)
+# AIC(fit_lognormal_10, fit_poisson_10)
+# AIC(fit_lognormal_1, fit_poisson_1)
+# 
+# # generate values given our fit parameters
+# fit_1 <- dlnorm(x_1, fit_lognormal_1$estimate['meanlog'], fit_lognormal_1$estimate['sdlog'])
+# fit_10 <- dlnorm(x_10, fit_lognormal_10$estimate['meanlog'], fit_lognormal_10$estimate['sdlog'])
+# fit_100 <- dlnorm(x_100, fit_lognormal_100$estimate['meanlog'], fit_lognormal_100$estimate['sdlog'])
+# fit_1 <- dpois(x_1, fit_poisson_1$estimate['lambda'])
+# fit_10 <- dpois(x_10, fit_poisson_10$estimate['lambda'])
+# fit_100 <- dpois(x_100, fit_poisson_100$estimate['lambda'])
+# 
+# # plot the fit and original distributions
+# 
+# plot(x_1, fit_1, type="l", ylab="Density",xlab="X")
+# title(main = "Density histogram with lognormal fit")
+# lines(hst_1$mid, hst_1$density, type="l", col="red")
+# legend(8,0.15,legend=c("Fit","Data"),lty=c(1,1),col=c("black","red"))
+# 
+# plot(x_10, fit_10, type="l", ylab="Density", xlab="X", xlim = c(0, max(hst_10$mids)), ylim = c(0, max(hst_10$density)))
+# title(main = "Density histogram with lognormal fit")
+# lines(hst_10$mid, hst_10$density, type="l", col="red")
+# legend(8,0.15,legend=c("Fit","Data"),lty=c(1,1),col=c("black","red"))
+# 
+# plot(x_100, fit_100, type="l", ylab="Density",
+#      xlab="X", ylim=c(0,max(hst_100$density)), xlim=c(0,max(hst_100$mid)))
+# title(main = "Density histogram with lognormal fit")
+# lines(hst_100$mid, hst_100$density, type="l", col="red")
+# legend(8,0.15,legend=c("Fit","Data"),lty=c(1,1),col=c("black","red"))
 
 ```
-#test fitdistr code from Daniel Schwartz
+
+#CDF of subsampled muri data
 ```{r}
-library(MASS)
-x <- rpois(1000,3)
 
-hst <- hist(x, breaks = 100)
-y <- fitdistr(x, "Poisson")
-fit <- dpois(hst$mids, y$estimate['lambda'])
-
-plot(x, fit, type="p", ylab="Density", xlab="X", ylim = c(0, max(fit)), xlim = c(0, max(x)))
-title(main = "Density histogram with lognormal fit")
-lines(hst$mids, hst$counts, type ="l", col="red")
-legend(8,0.15,legend=c("Fit","Data"),lty=c(1,1),col=c("black","red"))
-```
-#CDF of subsampled MURI data
-```{r}
-aa_1day_rare <- sample_n(aa_rac_Spo0A_1day_S1, length(aa_rac_Spo0A_100day_S1[,2]))
-aa_10day_rare <- sample_n(aa_rac_Spo0A_10day_S1,length(aa_rac_Spo0A_100day_S1[,2]))
-aa_1day_rare <- RAC(aa_1day_rare[,2])
-aa_10day_rare <- RAC(aa_10day_rare[,2])
-aa_Cdist_1day_rare <- CDist(aa_1day_rare[,2])
-aa_Cdist_10day_rare <- CDist(aa_10day_rare[,2])
-
-png(filename="./output/MURI.Spo0A_RSG_aaCDF_rare.png",
+png(here("output", "MURI.Spo0A_RSG_aaCDF_rare.png"),
      width = 1800, height = 900, res = 96*2)
 
 par(fig=c(0,0.5,0,1))
@@ -734,21 +685,21 @@ summary(lm)
 plot(hist.dat$density ~ hist.dat$mids)
 abline(lm)
 
-fit_1_hist <- ggplot(aa_rac_Spo0A_100day_S1, aes(aa_rac_Spo0A_100day_S1[,2]))+
-  geom_histogram()+
-  xlab("Tau")+
-  ylab("Biomass Production (uM C/hr)")+
-  geom_smooth(method = "lm", formula = y~x)+
-  stat_poly_eq(aes(label =  paste(stat(rr.label), "*\" and \"*", stat(p.value.label), sep = "")),
-               formula = y~x, parse = TRUE, size = 4)+
-  scale_x_continuous(labels = label_math(expr = 10^.x, format = force))
-
-fit_1_hist
+# fit_1_hist <- ggplot(aa_rac_Spo0A_100day_S1, aes(aa_rac_Spo0A_100day_S1[,2]))+
+#   geom_histogram(binwidth = 10)+
+#   xlab("Tau")+
+#   ylab("Biomass Production (uM C/hr)")+
+#   geom_smooth(method = "lm", formula = y~x)+
+#   stat_poly_eq(aes(label =  paste(stat(rr.label), "*\" and \"*", stat(p.value.label), sep = "")),
+#                formula = y~x, parse = TRUE, size = 4)+
+#   scale_x_continuous(labels = label_math(expr = 10^.x, format = force))
+# 
+# fit_1_hist
 ```
 
-# Relative and Absolute Abundance MURI lines
+# Relative and Absolute Abundance fcs lines
 ```{r}
-png(filename="./output/MURI.Spo0A_RSG_ra_aa.png",
+png(here("output", "MURI.Spo0A_RSG_ra_aa.png"),
      width = 1800, height = 900, res = 96*2)
 
 par(fig=c(0,0.5,0,1))
@@ -780,7 +731,7 @@ dev.off()
 
 ```{r}
 #MURI lines absolute abundance CDF and RAC
-png(filename="./output/MURI.Spo0A_RSG_aaCDF.png",
+png(here("output", "MURI.Spo0A_RSG_aaCDF.png"),
      width = 1800, height = 900, res = 96*2)
 
 par(fig=c(0,0.5,0,1))
@@ -817,7 +768,7 @@ dev.off()
 ##Figure for MURI Equipment Grant Report (relative abundance activity)
 ```{r}
 #MURI lines relative abundance CDF and RAC
-png(filename="./output/MURI.Spo0A_RSG_raCDF.png",
+png(here("output", "MURI.Spo0A_RSG_raCDF.png"),
      width = 1800, height = 900, res = 96*2)
 
 par(fig=c(0,0.5,0,1))

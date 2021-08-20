@@ -17,9 +17,11 @@ for (package in package.list) {
   } }
 
 BiocManager::valid()
-BiocManager::install("flowCore")
-BiocManager::install("ggcyto")
-BiocManager::install()
+# BiocManager::install("flowCore")
+# BiocManager::install("ggcyto")
+# BiocManager::install()
+
+here()
 ```
 
 ```{r figure_setup}
@@ -108,7 +110,7 @@ process <- function(x = "", channel = "", scale = ""){
 ```
 
 ```{r}
-BP_fxn <- function(CPMs, Tau, set){
+BP_fxn <- function(CPMs, Samples, set){
   ##extract whole experiment info from top of csv
   
   #date experiment was run
@@ -160,78 +162,79 @@ BP_fxn <- function(CPMs, Tau, set){
   
   #average DPMs for each sample and add to Tau
   for(x in unique(CPMs$Sample)){
-    Tau[Tau$Tau == x, "DPM"] <- as.numeric(mean(CPMs[CPMs$Sample == x, "DPM"]))
+    Samples[Samples$Sample == x, "DPM"] <- as.numeric(mean(CPMs[CPMs$Sample == x, "DPM"]))
   }
 
   
   #for each sample, subtract the corresponding kill DPM
-  for (x in unique(Tau$Tau)){
-    if(Tau[Tau$Tau == x, "Set"] == set){
-      Tau[Tau$Tau == x, "DPMKills"] <- Tau[Tau$Tau ==x, "DPM"] - (as.numeric(Kills[Kills$Sample == x, "CPM"])/efficiency)
+  for (x in unique(Samples$Sample)){
+    if(Samples[Samples$Sample == x, "Set"] == set){
+      Samples[Samples$Sample == x, "DPMKills"] <- Samples[Samples$Sample ==x, "DPM"] - (as.numeric(Kills[Kills$Sample == x, "CPM"])/efficiency)
     }
   }
   
   #Determine Mols Leucine based on MLeu_sample = MLeu * DPM/voucher
-  Tau$MLeu <- (M_Leu * Tau$DPMKills)/Voucher
+  Samples$MLeu <- (M_Leu * Samples$DPMKills)/Voucher
   
   #Convert MLeu to ug C/L/hr
-  Tau$ugCLhr <- Tau$MLeu * 131.2 * (1/0.073)*0.86*2*1000000
+  Samples$ugCLhr <- Samples$MLeu * 131.2 * (1/0.073)*0.86*2*1000000
   
   
-  Tau$uMChr <- Tau$ugCLhr *0.083333
+  Samples$uMChr <- Samples$ugCLhr *0.083333
   
-  Tau$log_uMChr <- log(Tau$uMChr, 10)
+  Samples$log_uMChr <- log(Samples$uMChr, 10)
   
-  return(Tau[,c( "Set", "Tau", "Date", "uMChr", "log_uMChr")])
+  return(Samples)
 }
 ```
 
 ```{r}
-RSG_2.875 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/E6_2.875Ra.fcs", "B530-H")
-RSG_3.25 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/G6_3.25Ra.fcs", "B530-H")
-RSG_3.875 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/A7_3.875Ra.fcs", "B530-H")
-RSG_4.125 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/C7_4.125Ra.fcs", "B530-H")
-RSG_4.375 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/E7_4.375Ra.fcs", "B530-H")
-RSG_4.625 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/G7_4.625Ra.fcs", "B530-H")
-RSG_4.875 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/A8_4.875Ra.fcs", "B530-H")
-RSG_5.125 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/C8_5.125Ra.fcs", "B530-H")
-RSG_5.375 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/E8_5.375Ra.fcs", "B530-H")
-RSG_5.625 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/G8_5.625Ra.fcs", "B530-H")
+MD_RTLC_01_RSG <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "E6_2.875Ra.fcs"), "B530-H")
+MD_RTLC_02_RSG <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "G6_3.25Ra.fcs"), "B530-H")
+MD_RTLC_03_RSG <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "A7_3.875Ra.fcs"), "B530-H")
+MD_RTLC_04_RSG <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "C7_4.125Ra.fcs"), "B530-H")
+MD_RTLC_05_RSG <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "E7_4.375Ra.fcs"), "B530-H")
+MD_RTLC_06_RSG <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "G7_4.625Ra.fcs"), "B530-H")
+MD_RTLC_07_RSG <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "A8_4.875Ra.fcs"), "B530-H")
+MD_RTLC_08_RSG <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "C8_5.125Ra.fcs"), "B530-H")
+MD_RTLC_09_RSG <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "E8_5.375Ra.fcs"), "B530-H")
+MD_RTLC_10_RSG <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "G8_5.625Ra.fcs"), "B530-H")
 
-Chemostat_RSG <- as.data.frame(RSG_2.875$rac)
-Chemostat_RSG <- cbindX(Chemostat_RSG, as.data.frame(RSG_3.25$rac), as.data.frame(RSG_3.875$rac), as.data.frame(RSG_4.125$rac), as.data.frame(RSG_4.375$rac), as.data.frame(RSG_4.625$rac), as.data.frame(RSG_4.875$rac), as.data.frame(RSG_5.125$rac), as.data.frame(RSG_5.375$rac), as.data.frame(RSG_5.625$rac))
+MD_RSG <- as.data.frame(MD_RTLC_01_RSG$rac)
+MD_RSG <- cbindX(MD_RSG, as.data.frame(MD_RTLC_02_RSG$rac), as.data.frame(MD_RTLC_03_RSG$rac), as.data.frame(MD_RTLC_04_RSG$rac), as.data.frame(MD_RTLC_05_RSG$rac), as.data.frame(MD_RTLC_06_RSG$rac), as.data.frame(MD_RTLC_07_RSG$rac), as.data.frame(MD_RTLC_08_RSG$rac), as.data.frame(MD_RTLC_09_RSG$rac), as.data.frame(MD_RTLC_10_RSG$rac))
 
-colnames(Chemostat_RSG) <- c("RTLC_2.875", "RTLC_3.25", "RTLC_3.875", "RTLC_4.125", "RTLC_4.375", "RTLC_4.625", "RTLC_4.875", "RTLC_5.125", "RTLC_5.375", "RTLC_5.625")
+colnames(MD_RSG) <- c("MD_RTLC_01", "MD_RTLC_02", "MD_RTLC_03", "MD_RTLC_04", "MD_RTLC_05", "MD_RTLC_06", "MD_RTLC_07", "MD_RTLC_08", "MD_RTLC_09", "MD_RTLC_10")
 
-write.csv(Chemostat_RSG, 'Chemostat_RSG.csv')
-
-```
-
-```{r}
-ATP_2.875 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/A9_2.875Aa.fcs", "B586-H")
-ATP_3.25 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/C9_3.25Aa.fcs", "B586-H")
-ATP_3.875 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/E9_3.875Aa.fcs", "B586-H")
-ATP_4.125 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/G9_4.125Aa.fcs", "B586-H")
-ATP_4.375 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/A10_4.375Aa.fcs", "B586-H")
-ATP_4.625 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/C10_4.625Aa.fcs", "B586-H")
-ATP_4.875 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/E10_4.875Aa.fcs", "B586-H")
-ATP_5.125 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/G10_5.125Aa.fcs", "B586-H")
-ATP_5.375 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/A11_5.375Aa.fcs", "B586-H")
-ATP_5.625 <- process("./data/20210729_RTLC_S3_SYBR_RSG_ATP/C11_5.625Aa.fcs", "B586-H")
-
-Chemostat_ATP <- as.data.frame(ATP_2.875$rac)
-Chemostat_ATP <- cbindX(Chemostat_ATP, as.data.frame(ATP_3.25$rac), as.data.frame(ATP_3.875$rac), as.data.frame(ATP_4.125$rac), as.data.frame(ATP_4.375$rac), as.data.frame(ATP_4.625$rac), as.data.frame(ATP_4.875$rac), as.data.frame(ATP_5.125$rac), as.data.frame(ATP_5.375$rac), as.data.frame(ATP_5.625$rac))
-
-colnames(Chemostat_ATP) <- c("RTLC_2.875", "RTLC_3.25", "RTLC_3.875", "RTLC_4.125", "RTLC_4.375", "RTLC_4.625", "RTLC_4.875", "RTLC_5.125", "RTLC_5.375", "RTLC_5.625")
-
-write.csv(Chemostat_ATP, 'Chemostat_ATP.csv')
+write.csv(MD_RSG, here('data', 'MetDistRA21', 'MD_RSG.csv'))
 
 ```
 
 ```{r}
-Chemostat_Samples <- read.csv("data/20210729_RTLC_S3_SYBR_RSG_ATP/Chemostat_Samples.csv")
-Chemostat_CPM <- read.csv("data/20210729_RTLC_S3_SYBR_RSG_ATP/20210723_RTLC_S3_BP.csv", header = FALSE)
-Chemostat_Samples <- as.data.frame(BP_fxn(Chemostat_CPM, Chemostat_Samples, "RTLC"))
+MD_RTLC_01_ATP <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "A9_2.875Aa.fcs"), "B586-H")
+MD_RTLC_02_ATP <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "C9_3.25Aa.fcs"), "B586-H")
+MD_RTLC_03_ATP <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "E9_3.875Aa.fcs"), "B586-H")
+MD_RTLC_04_ATP <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "G9_4.125Aa.fcs"), "B586-H")
+MD_RTLC_05_ATP <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "A10_4.375Aa.fcs"), "B586-H")
+MD_RTLC_06_ATP <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "C10_4.625Aa.fcs"), "B586-H")
+MD_RTLC_07_ATP <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "E10_4.875Aa.fcs"), "B586-H")
+MD_RTLC_08_ATP <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "G10_5.125Aa.fcs"), "B586-H")
+MD_RTLC_09_ATP <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "A11_5.375Aa.fcs"), "B586-H")
+MD_RTLC_10_ATP <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "C11_5.625Aa.fcs"), "B586-H")
 
-write.csv(Chemostat_Samples, 'Chemostat_Meta.csv')
+MD_ATP <- as.data.frame(MD_RTLC_01_ATP$rac)
+MD_ATP <- cbindX(MD_ATP, as.data.frame(MD_RTLC_02_ATP$rac), as.data.frame(MD_RTLC_03_ATP$rac), as.data.frame(MD_RTLC_04_ATP$rac), as.data.frame(MD_RTLC_05_ATP$rac), as.data.frame(MD_RTLC_06_ATP$rac), as.data.frame(MD_RTLC_07_ATP$rac), as.data.frame(MD_RTLC_08_ATP$rac), as.data.frame(MD_RTLC_09_ATP$rac), as.data.frame(MD_RTLC_10_ATP$rac))
+
+colnames(MD_ATP) <- c("MD_RTLC_01", "MD_RTLC_02", "MD_RTLC_03", "MD_RTLC_04", "MD_RTLC_05", "MD_RTLC_06", "MD_RTLC_07", "MD_RTLC_08", "MD_RTLC_09", "MD_RTLC_10")
+
+write.csv(MD_ATP, here('data', 'MetDistRA21', 'MD_ATP.csv'))
+
+```
+
+```{r}
+Samples <- read.csv(here("data","MetDistRA21", "MetDistRA21_Samples.csv"))
+Chemostat_CPM <- read.csv(here("data", "MetDistRA21","20210729_RTLC_S3_SYBR_RSG_ATP","20210723_RTLC_S3_BP.csv"), header = FALSE)
+Samples <- as.data.frame(BP_fxn(Chemostat_CPM, Samples, "RTLC"))
+Samples <- subset(Samples, select = -c(DPM, DPMKills, MLeu, ugCLhr))
+
+write.csv(Samples, here('data', 'MetDistRA21', 'MD_meta.csv'))
 ```
