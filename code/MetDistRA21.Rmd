@@ -233,7 +233,9 @@ write.csv(MD_ATP, here('data', 'MetDistRA21', 'MD_ATP.csv'))
 ```{r}
 Samples <- read.csv(here("data","MetDistRA21", "MetDistRA21_Samples.csv"))
 Chemostat_CPM <- read.csv(here("data", "MetDistRA21","20210729_RTLC_S3_SYBR_RSG_ATP","20210723_RTLC_S3_BP.csv"), header = FALSE)
+UL_CPM <- read.csv(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "20210825_ULRG_BP.csv"), header = FALSE)
 Samples <- as.data.frame(BP_fxn(Chemostat_CPM, Samples, "RTLC"))
+Samples <- as.data.frame(BP_fxn(UL_CPM, Samples, "UL_RG"))
 Samples <- subset(Samples, select = -c(DPM, DPMKills, MLeu, ugCLhr))
 
 write.csv(Samples, here('data', 'MetDistRA21', 'MD_meta.csv'))
