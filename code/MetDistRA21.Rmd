@@ -63,6 +63,15 @@ RAC <- function(x = ""){
 
 ```
 
+```{r}
+Pareto <- function(x = "", pareto_para = ""){
+  head(x)
+  pareto <- fitdist(x[ ,1], "pareto", start = list(shape = 0.1, scale = 10))
+  pareto_para <- rbind(pareto_para, c(pareto$estimate[1], pareto$estimate[2]))
+  return(pareto_para)
+}
+```
+
 #process function takes in the name of a fcs file, channel to be saved, and scale and returns a ranked rank activity matrix
 ```{r}
 processmultiple <- function(x = "", channel = "", scale = "", name = "", desc = ""){
@@ -95,7 +104,7 @@ processmultiple <- function(x = "", channel = "", scale = "", name = "", desc = 
 ```
 
 ```{r}
-process <- function(x = "", channel = "", scale = ""){
+process_rac <- function(x = "", channel = "", scale = ""){
   if(scale == TRUE){
     fcs <- flowCore::read.FCS(file = x, transformation = "scale")
   }
@@ -106,6 +115,22 @@ process <- function(x = "", channel = "", scale = ""){
   RSG_H <- as.data.frame(flow[,channel])
   rac <- RAC(x = RSG_H)
   return(rac)
+}
+```
+
+```{r}
+process <- function(x = "", channel = "", scale = ""){
+  if(scale == TRUE){
+    fcs <- flowCore::read.FCS(file = x, transformation = "scale")
+  }
+  else{
+    fcs <- flowCore::read.FCS(file = x)
+  }
+  flow <- flowCore::exprs(fcs)
+  RSG_H <- as.data.frame(flow[,channel])
+  RSG_H <- as.vector(RSG_H)
+  RSG_ab = RSG_H[RSG_H >0]
+  return(as.data.frame(RSG_ab))
 }
 ```
 
@@ -189,6 +214,17 @@ BP_fxn <- function(CPMs, Samples, set){
 ```
 
 ```{r}
+Met_fxn <- function(met_samples, Samples){
+  for(x in unique(met_samples$Sample)){
+    Samples$Shape[Samples$Sample == x] <- met_samples$shape[met_samples$Sample == x]
+    Samples$Scale[Samples$Sample == x] <- met_samples$scale[met_samples$Sample == x]
+  }
+  
+  return(Samples)
+}
+```
+
+```{r}
 MD_RTLC_01_RSG <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "E6_2.875Ra.fcs"), "B530-H")
 MD_RTLC_02_RSG <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "G6_3.25Ra.fcs"), "B530-H")
 MD_RTLC_03_RSG <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "A7_3.875Ra.fcs"), "B530-H")
@@ -200,8 +236,8 @@ MD_RTLC_08_RSG <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG
 MD_RTLC_09_RSG <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "E8_5.375Ra.fcs"), "B530-H")
 MD_RTLC_10_RSG <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "G8_5.625Ra.fcs"), "B530-H")
 
-MD_RSG <- as.data.frame(MD_RTLC_01_RSG$rac)
-MD_RSG <- cbindX(MD_RSG, as.data.frame(MD_RTLC_02_RSG$rac), as.data.frame(MD_RTLC_03_RSG$rac), as.data.frame(MD_RTLC_04_RSG$rac), as.data.frame(MD_RTLC_05_RSG$rac), as.data.frame(MD_RTLC_06_RSG$rac), as.data.frame(MD_RTLC_07_RSG$rac), as.data.frame(MD_RTLC_08_RSG$rac), as.data.frame(MD_RTLC_09_RSG$rac), as.data.frame(MD_RTLC_10_RSG$rac))
+MD_RSG <- as.data.frame(MD_RTLC_01_RSG$RSG_ab)
+MD_RSG <- cbindX(MD_RSG, as.data.frame(MD_RTLC_02_RSG$RSG_ab), as.data.frame(MD_RTLC_03_RSG$RSG_ab), as.data.frame(MD_RTLC_04_RSG$RSG_ab), as.data.frame(MD_RTLC_05_RSG$RSG_ab), as.data.frame(MD_RTLC_06_RSG$RSG_ab), as.data.frame(MD_RTLC_07_RSG$RSG_ab), as.data.frame(MD_RTLC_08_RSG$RSG_ab), as.data.frame(MD_RTLC_09_RSG$RSG_ab), as.data.frame(MD_RTLC_10_RSG$RSG_ab))
 
 colnames(MD_RSG) <- c("MD_RTLC_01", "MD_RTLC_02", "MD_RTLC_03", "MD_RTLC_04", "MD_RTLC_05", "MD_RTLC_06", "MD_RTLC_07", "MD_RTLC_08", "MD_RTLC_09", "MD_RTLC_10")
 
@@ -210,16 +246,16 @@ write.csv(MD_RSG, here('data', 'MetDistRA21', 'MD_RSG.csv'))
 ```
 
 ```{r}
-MD_RTLC_01_ATP <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "A9_2.875Aa.fcs"), "B586-H")
-MD_RTLC_02_ATP <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "C9_3.25Aa.fcs"), "B586-H")
-MD_RTLC_03_ATP <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "E9_3.875Aa.fcs"), "B586-H")
-MD_RTLC_04_ATP <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "G9_4.125Aa.fcs"), "B586-H")
-MD_RTLC_05_ATP <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "A10_4.375Aa.fcs"), "B586-H")
-MD_RTLC_06_ATP <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "C10_4.625Aa.fcs"), "B586-H")
-MD_RTLC_07_ATP <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "E10_4.875Aa.fcs"), "B586-H")
-MD_RTLC_08_ATP <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "G10_5.125Aa.fcs"), "B586-H")
-MD_RTLC_09_ATP <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "A11_5.375Aa.fcs"), "B586-H")
-MD_RTLC_10_ATP <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "C11_5.625Aa.fcs"), "B586-H")
+MD_RTLC_01_ATP <- process_rac(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "A9_2.875Aa.fcs"), "B586-H")
+MD_RTLC_02_ATP <- process_rac(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "C9_3.25Aa.fcs"), "B586-H")
+MD_RTLC_03_ATP <- process_rac(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "E9_3.875Aa.fcs"), "B586-H")
+MD_RTLC_04_ATP <- process_rac(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "G9_4.125Aa.fcs"), "B586-H")
+MD_RTLC_05_ATP <- process_rac(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "A10_4.375Aa.fcs"), "B586-H")
+MD_RTLC_06_ATP <- process_rac(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "C10_4.625Aa.fcs"), "B586-H")
+MD_RTLC_07_ATP <- process_rac(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "E10_4.875Aa.fcs"), "B586-H")
+MD_RTLC_08_ATP <- process_rac(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "G10_5.125Aa.fcs"), "B586-H")
+MD_RTLC_09_ATP <- process_rac(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "A11_5.375Aa.fcs"), "B586-H")
+MD_RTLC_10_ATP <- process_rac(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "C11_5.625Aa.fcs"), "B586-H")
 
 MD_ATP <- as.data.frame(MD_RTLC_01_ATP$rac)
 MD_ATP <- cbindX(MD_ATP, as.data.frame(MD_RTLC_02_ATP$rac), as.data.frame(MD_RTLC_03_ATP$rac), as.data.frame(MD_RTLC_04_ATP$rac), as.data.frame(MD_RTLC_05_ATP$rac), as.data.frame(MD_RTLC_06_ATP$rac), as.data.frame(MD_RTLC_07_ATP$rac), as.data.frame(MD_RTLC_08_ATP$rac), as.data.frame(MD_RTLC_09_ATP$rac), as.data.frame(MD_RTLC_10_ATP$rac))
@@ -237,6 +273,136 @@ UL_CPM <- read.csv(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "20
 Samples <- as.data.frame(BP_fxn(Chemostat_CPM, Samples, "RTLC"))
 Samples <- as.data.frame(BP_fxn(UL_CPM, Samples, "UL_RG"))
 Samples <- subset(Samples, select = -c(DPM, DPMKills, MLeu, ugCLhr))
+Samples$dist <- c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 0, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325)
 
 write.csv(Samples, here('data', 'MetDistRA21', 'MD_meta.csv'))
+```
+
+```{r}
+lm <- lm(data= Samples, log_uMChr ~ Temp)
+summary(lm)
+
+Temp <- ggplot(data = Samples, aes(x = Temp, y = uMChr))+
+  geom_point(size = 3)+
+  xlab("Temp")+
+  ylab(expression(paste("Bacterial Production (", mu, "M C/hr)")))+
+  geom_smooth(method = "lm", formula = y~x)+
+  stat_poly_eq(aes(label =  paste(stat(rr.label), "*\" and \"*", stat(p.value.label), sep = "")),
+               formula = y~x, parse = TRUE, size = 4)
+
+Temp
+
+ggsave("../output/MetDist21_Temp_BP.pdf")
+ggsave("../output/MetDist21_Temp_BP.png")
+
+Dist <- ggplot(data = Samples, aes(x = dist, y = uMChr))+
+  geom_point(size = 3)+
+  xlab("Distance from dam (m)")+
+  ylab(expression(paste("Bacterial Production (", mu, "M C/hr)")))+
+  geom_smooth(method = "lm", formula = y~x)+
+  stat_poly_eq(aes(label =  paste(stat(rr.label), "*\" and \"*", stat(p.value.label), sep = "")),
+               formula = y~x, parse = TRUE, size = 4)
+
+Dist
+
+ggsave("../output/MetDist21_Dist_BP.pdf")
+ggsave("../output/MetDist21_Dist_BP.png")
+
+```
+
+
+
+```{r}
+
+MD_ULRG_01_A <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL01_Ra.fcs"), "B530-H")
+MD_ULRG_02_A <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL02_Ra.fcs"), "B530-H")
+MD_ULRG_03_A <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL03_Ra.fcs"), "B530-H")
+MD_ULRG_04_A <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL04_Ra.fcs"), "B530-H")
+MD_ULRG_05_A <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL05_Ra.fcs"), "B530-H")
+MD_ULRG_06_A <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL06_Ra.fcs"), "B530-H")
+MD_ULRG_07_A <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL07_Ra.fcs"), "B530-H")
+MD_ULRG_08_A <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL08_Ra.fcs"), "B530-H")
+MD_ULRG_09_A <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL09_Ra.fcs"), "B530-H")
+MD_ULRG_10_A <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL10_Ra.fcs"), "B530-H")
+MD_ULRG_11_A <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL11_Ra.fcs"), "B530-H")
+MD_ULRG_12_A <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL12_Ra.fcs"), "B530-H")
+MD_ULRG_13_A <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL13_Ra.fcs"), "B530-H")
+MD_ULRG_14_A <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL14_Ra.fcs"), "B530-H")
+
+MD_ULRG_01_B <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL01_Rb.fcs"), "B530-H")
+MD_ULRG_02_B <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL02_Rb.fcs"), "B530-H")
+MD_ULRG_03_B <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL03_Rb.fcs"), "B530-H")
+MD_ULRG_04_B <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL04_Rb.fcs"), "B530-H")
+MD_ULRG_05_B <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL05_Rb.fcs"), "B530-H")
+MD_ULRG_06_B <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL06_Rb.fcs"), "B530-H")
+MD_ULRG_07_B <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL07_Rb.fcs"), "B530-H")
+MD_ULRG_08_B <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL08_Rb.fcs"), "B530-H")
+MD_ULRG_09_B <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL09_Rb.fcs"), "B530-H")
+MD_ULRG_10_B <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL10_Rb.fcs"), "B530-H")
+MD_ULRG_11_B <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL11_Rb.fcs"), "B530-H")
+MD_ULRG_12_B <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL12_Rb.fcs"), "B530-H")
+MD_ULRG_13_B <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL13_Rb.fcs"), "B530-H")
+MD_ULRG_14_B <- process(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "UL14_Rb.fcs"), "B530-H")
+
+MD_ULRG_RSG <- as.data.frame(MD_ULRG_01_A$RSG_ab)
+MD_ULRG_RSG <- cbindX(MD_ULRG_RSG, as.data.frame(MD_ULRG_02_A$RSG_ab), as.data.frame(MD_ULRG_03_A$RSG_ab), as.data.frame(MD_ULRG_04_A$RSG_ab), as.data.frame(MD_ULRG_05_A$RSG_ab), as.data.frame(MD_ULRG_06_A$RSG_ab), as.data.frame(MD_ULRG_07_A$RSG_ab), as.data.frame(MD_ULRG_08_A$RSG_ab), as.data.frame(MD_ULRG_09_A$RSG_ab), as.data.frame(MD_ULRG_10_A$RSG_ab), as.data.frame(MD_ULRG_11_A$RSG_ab), as.data.frame(MD_ULRG_12_A$RSG_ab), as.data.frame(MD_ULRG_13_A$RSG_ab), as.data.frame(MD_ULRG_14_A$RSG_ab), as.data.frame(MD_ULRG_01_B$RSG_ab), as.data.frame(MD_ULRG_02_B$RSG_ab), as.data.frame(MD_ULRG_03_B$RSG_ab), as.data.frame(MD_ULRG_04_B$RSG_ab), as.data.frame(MD_ULRG_05_B$RSG_ab), as.data.frame(MD_ULRG_06_B$RSG_ab), as.data.frame(MD_ULRG_07_B$RSG_ab), as.data.frame(MD_ULRG_08_B$RSG_ab), as.data.frame(MD_ULRG_09_B$RSG_ab), as.data.frame(MD_ULRG_10_B$RSG_ab), as.data.frame(MD_ULRG_11_B$RSG_ab), as.data.frame(MD_ULRG_12_B$RSG_ab), as.data.frame(MD_ULRG_13_B$RSG_ab), as.data.frame(MD_ULRG_14_B$RSG_ab))
+
+
+
+colnames(MD_ULRG_RSG) <- c("MD_ULRG_01_A", "MD_ULRG_02_A", "MD_ULRG_03_A", "MD_ULRG_04_A", "MD_ULRG_05_A", "MD_ULRG_06_A", "MD_ULRG_07_A", "MD_ULRG_08_A", "MD_ULRG_09_A", "MD_ULRG_10_A", "MD_ULRG_11_A", "MD_ULRG_12_A", "MD_ULRG_13_A", "MD_ULRG_14_A", "MD_ULRG_01_B", "MD_ULRG_02_B", "MD_ULRG_03_B", "MD_ULRG_04_B", "MD_ULRG_05_B", "MD_ULRG_06_B", "MD_ULRG_07_B", "MD_ULRG_08_B", "MD_ULRG_09_B", "MD_ULRG_10_B", "MD_ULRG_11_B", "MD_ULRG_12_B", "MD_ULRG_13_B", "MD_ULRG_14_B")
+
+write.csv(MD_ULRG_RSG, here('data', 'MetDistRA21', 'MD_ULRG_RSG.csv'))
+
+```
+#Fits Pareto distributions for all RSG datasets - Adds Set and BP to dataframe with shape and scale parameters
+
+```{r}
+met <- list(MD_ULRG_01_A, MD_ULRG_02_A, MD_ULRG_03_A, MD_ULRG_04_A, MD_ULRG_05_A, MD_ULRG_06_A, MD_ULRG_07_A, MD_ULRG_08_A, MD_ULRG_09_A, MD_ULRG_10_A, MD_ULRG_11_A, MD_ULRG_12_A, MD_ULRG_13_A, MD_ULRG_14_A, MD_ULRG_01_B, MD_ULRG_02_B, MD_ULRG_03_B, MD_ULRG_04_B, MD_ULRG_05_B, MD_ULRG_06_B, MD_ULRG_07_B, MD_ULRG_08_B, MD_ULRG_09_B, MD_ULRG_10_B, MD_ULRG_11_B, MD_ULRG_12_B, MD_ULRG_13_B, MD_ULRG_14_B, MD_RTLC_01_RSG, MD_RTLC_02_RSG, MD_RTLC_03_RSG, MD_RTLC_04_RSG, MD_RTLC_05_RSG, MD_RTLC_06_RSG, MD_RTLC_07_RSG, MD_RTLC_08_RSG, MD_RTLC_09_RSG, MD_RTLC_10_RSG)
+pareto_para <- data.frame()
+for(x in met){
+  pareto_para <- Pareto(x, pareto_para)
+}
+
+samples <- c("MD_UL_01", "MD_UL_02", "MD_UL_03", "MD_UL_04", "MD_UL_05", "MD_UL_06", "MD_UL_07", "MD_UL_08", "MD_UL_09", "MD_UL_10", "MD_UL_11", "MD_UL_12", "MD_UL_13", "MD_UL_14","MD_UL_01", "MD_UL_02", "MD_UL_03", "MD_UL_04", "MD_UL_05", "MD_UL_06", "MD_UL_07", "MD_UL_08", "MD_UL_09", "MD_UL_10", "MD_UL_11", "MD_UL_12", "MD_UL_13", "MD_UL_14", "MD_RTLC_01", "MD_RTLC_02", "MD_RTLC_03", "MD_RTLC_04", "MD_RTLC_05", "MD_RTLC_06", "MD_RTLC_07", "MD_RTLC_08", "MD_RTLC_09", "MD_RTLC_10")
+met_samples <- data.frame(samples, pareto_para)
+names(met_samples) <- c("Sample", "shape", "scale")
+
+for(x in met_samples$Sample){
+  met_samples$Set[met_samples$Sample == x] <- Samples$Set[Samples$Sample == x]
+  met_samples$uMChr[met_samples$Sample == x] <- Samples$uMChr[Samples$Sample == x]
+}
+
+```
+
+#Plots shape and scale parameters vs. BP for ULRG dataset
+
+```{r}
+shape <- ggplot(subset(met_samples, met_samples$Set == "UL_RG"), aes(x = shape, y = uMChr))+
+  geom_point(size = 2, alpha = 0.6)+
+  xlab(expression(paste("Shape parameter (", alpha, ")")))+
+  ylab(expression(paste("Bacterial Production (", mu, "M C/hr)")))+
+  geom_smooth(method = "lm", formula = y~x)+
+  stat_poly_eq(aes(label =  paste(stat(rr.label), "*\" and \"*", stat(p.value.label), sep = "")),
+               formula = y~x, parse = TRUE, size = 4)
+
+shape
+
+ggsave("../output/ULRG_met_shape_BP.pdf")
+ggsave("../output/ULRG_met_shape_BP.png")
+
+
+scale <- ggplot(subset(met_samples, met_samples$Set == "UL_RG"), aes(x = scale, y = uMChr))+
+  geom_point(size = 2, alpha = 0.6)+
+  xlab(expression(paste("Scale parameter (", chi[m], ")")))+
+  ylab(expression(paste("Bacterial Production (", mu, "M C/hr)")))+
+  geom_smooth(method = "lm", formula = y~x)+
+  stat_poly_eq(aes(label =  paste(stat(rr.label), "*\" and \"*", stat(p.value.label), sep = "")),
+               formula = y~x, parse = TRUE, size = 4)
+
+scale
+
+ggsave("../output/ULRG_met_scale_BP.pdf")
+ggsave("../output/ULRG_met_scale_BP.png")
+
+hist <- hist(MD_ULRG_01[,1], breaks = 100)
 ```
