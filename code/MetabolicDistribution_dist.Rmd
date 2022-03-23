@@ -62,7 +62,6 @@ RAC <- function(x = ""){
   return(as.data.frame(rac))
 }
 
-
 ```
 _
 ```{r}
@@ -142,6 +141,15 @@ CDist <- function(x = ""){
   ranked <- cbind(cdist, Per)
   return(as.data.frame(ranked))
 
+}
+```
+
+```{r}
+Pareto <- function(x = "", pareto_para = ""){
+  head(x)
+  pareto <- fitdist(x[ ,2], "pareto", start = list(shape = 0.1, scale = 10))
+  pareto_para <- rbind(pareto_para, c(pareto$estimate[1], pareto$estimate[2]))
+  return(pareto_para)
 }
 ```
 
@@ -496,21 +504,13 @@ body(deriv_abs_Count) <- D(body(abs_count), 'x')
 curve(deriv_abs_Count, 0, 250, ylab = "f'(minutes)")
 der_abs_count <- deriv_abs_Count(OD600_Ecoli_GC$minutes)
 
-pareto_ra_rac_Ecoli_GC_1 <- fitdist(ra_rac_Ecoli_GC_1[,2], "pareto", start = list(shape = 0.1, scale = 10))
-pareto_ra_rac_Ecoli_GC_2 <- fitdist(ra_rac_Ecoli_GC_2[,2], "pareto", start = list(shape = 0.1, scale = 10))
-pareto_ra_rac_Ecoli_GC_3 <- fitdist(ra_rac_Ecoli_GC_3[,2], "pareto", start = list(shape = 0.1, scale = 10))
-pareto_ra_rac_Ecoli_GC_4 <- fitdist(ra_rac_Ecoli_GC_4[,2], "pareto", start = list(shape = 0.1, scale = 10))
-pareto_ra_rac_Ecoli_GC_5 <- fitdist(ra_rac_Ecoli_GC_5[,2], "pareto", start = list(shape = 0.1, scale = 10))
-pareto_ra_rac_Ecoli_GC_6 <- fitdist(ra_rac_Ecoli_GC_6[,2], "pareto", start = list(shape = 0.1, scale = 10))
-pareto_ra_rac_Ecoli_GC_7 <- fitdist(ra_rac_Ecoli_GC_7[,2], "pareto", start = list(shape = 0.1, scale = 10))
-shape <- data.frame()
-scale <- data.frame()
-shapescale <- list(pareto_ra_rac_Ecoli_GC_1, pareto_ra_rac_Ecoli_GC_2, pareto_ra_rac_Ecoli_GC_3, pareto_ra_rac_Ecoli_GC_4, pareto_ra_rac_Ecoli_GC_5, pareto_ra_rac_Ecoli_GC_6, pareto_ra_rac_Ecoli_GC_7)
-for(n in shapescale){
-  shape <- rbind(shape, n$estimate[1])
-  scale <- rbind(scale, n$estimate[2])
+CG <- list(ra_rac_Ecoli_GC_1, ra_rac_Ecoli_GC_2, ra_rac_Ecoli_GC_3, ra_rac_Ecoli_GC_4, ra_rac_Ecoli_GC_5, ra_rac_Ecoli_GC_6, ra_rac_Ecoli_GC_7)
+pareto_para <- data.frame()
+for(x in CG){
+  pareto_para <- Pareto(x, pareto_para)
 }
-GC <- data.frame(deriv, OD600_Ecoli_GC$OD600, OD600_Ecoli_GC$abs_count, shape, scale)
+
+GC <- data.frame(deriv, OD600_Ecoli_GC$OD600, OD600_Ecoli_GC$abs_count, pareto_para)
 names(GC) <- c("SGR", "OD600", "abs_count", "shape", "scale")
 plot(GC$abs_count, GC$scale)
 
