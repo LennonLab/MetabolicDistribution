@@ -6,9 +6,10 @@ output: pdf_document
 ```{r}
 rm(list = ls())
 getwd()
-library('ggpmisc')
 
-package.list <- c('BiocManager', 'vegan', 'fitdistrplus', 'ggplot2', 'car', 'here', 'ggcyto', 'actuar', 'tibble', 'ggpubr', 'scales', 'dplyr', 'ggpmisc', 'gdata') 
+#'extremefit', 'versions', 'tibble', 'ggpubr', 'scales', 'dplyr',  'car', 
+
+package.list <- c('BiocManager', 'vegan', 'fitdistrplus', 'ggplot2','here', 'ggcyto', 'actuar', 'gdata', 'ggpmisc') 
 
 for (package in package.list) {
   if (!require(package, character.only=T, quietly=T)) { 
@@ -16,10 +17,10 @@ for (package in package.list) {
     library(package, character.only=T)
   } }
 
-BiocManager::valid()
+# BiocManager::valid()
 # BiocManager::install("flowCore")
 # BiocManager::install("ggcyto")
-# BiocManager::install()
+ BiocManager::install()
 
 here()
 ```
@@ -65,8 +66,7 @@ RAC <- function(x = ""){
 
 ```{r}
 Pareto <- function(x = "", pareto_para = ""){
-  head(x)
-  pareto <- fitdist(x[ ,1], "pareto", start = list(shape = 0.1, scale = 10))
+  pareto <- fitdist(x[,1], "pareto", start = list(shape = 0.1, scale = 10))
   pareto_para <- rbind(pareto_para, c(pareto$estimate[1], pareto$estimate[2]))
   return(pareto_para)
 }
@@ -358,7 +358,10 @@ write.csv(MD_ULRG_RSG, here('data', 'MetDistRA21', 'MD_ULRG_RSG.csv'))
 
 ```{r}
 met <- list(MD_ULRG_01_A, MD_ULRG_02_A, MD_ULRG_03_A, MD_ULRG_04_A, MD_ULRG_05_A, MD_ULRG_06_A, MD_ULRG_07_A, MD_ULRG_08_A, MD_ULRG_09_A, MD_ULRG_10_A, MD_ULRG_11_A, MD_ULRG_12_A, MD_ULRG_13_A, MD_ULRG_14_A, MD_ULRG_01_B, MD_ULRG_02_B, MD_ULRG_03_B, MD_ULRG_04_B, MD_ULRG_05_B, MD_ULRG_06_B, MD_ULRG_07_B, MD_ULRG_08_B, MD_ULRG_09_B, MD_ULRG_10_B, MD_ULRG_11_B, MD_ULRG_12_B, MD_ULRG_13_B, MD_ULRG_14_B, MD_RTLC_01_RSG, MD_RTLC_02_RSG, MD_RTLC_03_RSG, MD_RTLC_04_RSG, MD_RTLC_05_RSG, MD_RTLC_06_RSG, MD_RTLC_07_RSG, MD_RTLC_08_RSG, MD_RTLC_09_RSG, MD_RTLC_10_RSG)
+
 pareto_para <- data.frame()
+
+    
 for(x in met){
   pareto_para <- Pareto(x, pareto_para)
 }
@@ -404,5 +407,83 @@ scale
 ggsave("../output/ULRG_met_scale_BP.pdf")
 ggsave("../output/ULRG_met_scale_BP.png")
 
-hist <- hist(MD_ULRG_01[,1], breaks = 100)
+
+```
+
+
+```{r}
+pareto <- function(x, shape, scale){
+  y <- (shape * (scale^shape))/(x^ (shape +1))
+  return(y)
+}
+
+
+hist_MD_ULRG <- ggplot(MD_ULRG_14_A, aes(x = RSG_ab, after_stat(density)))+
+  geom_histogram(color = "blue", fill = alpha("blue", 0.3), bins = 50)+
+  geom_histogram(data = MD_ULRG_06_A, aes(x = RSG_ab, after_stat(density)), color = "red", fill = alpha("red", 0.3), bins = 50)
+  xlab("RSG intensity")
+
+hist_MD_ULRG
+
+ggsave("../output/ULRG_met_hist.pdf")
+ggsave("../output/ULRG_met_hist.png")
+
+
+
+#MD_ULRG_14
+
+x <- 0:100000
+y <- pareto(x, 0.9160702, 87.33069)
+
+fit <- as.data.frame(x)
+fit$y <- y
+
+plot(fit$x, fit$y)
+
+hist <- hist(MD_ULRG_14_A$RSG_ab, breaks = 50)
+hist_df <- as.data.frame(hist$mids)
+hist_df$density <- hist$density
+
+MD_ULRG_14 <- ggplot(hist_df, aes(x = log(hist$mids), y = log(density)))+
+  geom_line(color = "blue")+
+#  geom_smooth(method = "lm", formula = y~x)+
+  geom_line(data = fit, color = "red", aes(x = log(x), y = log(y)))+
+  xlab("log(RSG intensity)")+
+  ylab("log(density)")+
+  ggtitle("ULRG_14 - more even")
+
+MD_ULRG_14
+
+ggsave("../output/ULRG_met_fit_14.pdf")
+ggsave("../output/ULRG_met_fit_14.png")
+
+
+
+#MD_ULRG_06
+
+x <- 0:100000
+y <- pareto(x, 1.3082674, 169.23152)
+
+fit <- as.data.frame(x)
+fit$y <- y
+
+plot(fit$x, fit$y)
+
+hist <- hist(MD_ULRG_06_A$RSG_ab, breaks = 50)
+hist_df <- as.data.frame(hist$mids)
+hist_df$density <- hist$density
+
+MD_ULRG_06 <- ggplot(hist_df, aes(x = log(hist$mids), y = log(density)))+
+  geom_line(color = "blue")+
+#  geom_smooth(method = "lm", formula = y~x)+
+  geom_line(data = fit, color = "red", aes(x = log(x), y = log(y)))+
+  xlab("log(RSG intensity)")+
+  ylab("log(density)")+
+  ggtitle("ULRG_06 - more skewed")
+
+MD_ULRG_06
+
+ggsave("../output/ULRG_met_fit_06.pdf")
+ggsave("../output/ULRG_met_fit_06.png")
+
 ```
