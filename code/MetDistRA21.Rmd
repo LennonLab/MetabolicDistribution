@@ -5,11 +5,12 @@ output: pdf_document
 
 ```{r}
 rm(list = ls())
+#invisible(lapply(paste0("package:", names(sessionInfo()$otherPkgs)), detach, character.only = TRUE, unload = TRUE))
 getwd()
 
-#'extremefit', 'versions', 'tibble', 'ggpubr', 'scales', 'dplyr',  'car', 
+#'extremefit', 'versions', 'tibble', 'ggpubr', 'scales', 'dplyr',  'car', 'ggcyto',
 
-package.list <- c('BiocManager', 'vegan', 'fitdistrplus', 'ggplot2','here', 'ggcyto', 'actuar', 'gdata', 'ggpmisc') 
+package.list <- c('BiocManager', 'vegan', 'fitdistrplus', 'ggplot2','here', 'actuar', 'gdata', 'ggpmisc', 'ggpp') 
 
 for (package in package.list) {
   if (!require(package, character.only=T, quietly=T)) { 
@@ -236,16 +237,31 @@ MD_RTLC_08_RSG <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG
 MD_RTLC_09_RSG <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "E8_5.375Ra.fcs"), "B530-H")
 MD_RTLC_10_RSG <- process(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "G8_5.625Ra.fcs"), "B530-H")
 
-MD_RSG <- as.data.frame(MD_RTLC_01_RSG$RSG_ab)
-MD_RSG <- cbindX(MD_RSG, as.data.frame(MD_RTLC_02_RSG$RSG_ab), as.data.frame(MD_RTLC_03_RSG$RSG_ab), as.data.frame(MD_RTLC_04_RSG$RSG_ab), as.data.frame(MD_RTLC_05_RSG$RSG_ab), as.data.frame(MD_RTLC_06_RSG$RSG_ab), as.data.frame(MD_RTLC_07_RSG$RSG_ab), as.data.frame(MD_RTLC_08_RSG$RSG_ab), as.data.frame(MD_RTLC_09_RSG$RSG_ab), as.data.frame(MD_RTLC_10_RSG$RSG_ab))
+MD_RTLC_11_RSG <- process(here("data", "MetDistRA21", "20210705_RTLC_S2_RSG", "1.75.fcs"), "B530-H")
+MD_RTLC_12_RSG <- process(here("data", "MetDistRA21", "20210705_RTLC_S2_RSG", "2.25.fcs"), "B530-H")
+MD_RTLC_13_RSG <- process(here("data", "MetDistRA21", "20210705_RTLC_S2_RSG", "2.75.fcs"), "B530-H")
+MD_RTLC_14_RSG <- process(here("data", "MetDistRA21", "20210705_RTLC_S2_RSG", "3.25.fcs"), "B530-H")
+MD_RTLC_15_RSG <- process(here("data", "MetDistRA21", "20210705_RTLC_S2_RSG", "3.75.fcs"), "B530-H")
+MD_RTLC_16_RSG <- process(here("data", "MetDistRA21", "20210705_RTLC_S2_RSG", "4.25.fcs"), "B530-H")
+MD_RTLC_17_RSG <- process(here("data", "MetDistRA21", "20210705_RTLC_S2_RSG", "4.75.fcs"), "B530-H")
+MD_RTLC_18_RSG <- process(here("data", "MetDistRA21", "20210705_RTLC_S2_RSG", "5.25.fcs"), "B530-H")
+MD_RTLC_19_RSG <- process(here("data", "MetDistRA21", "20210705_RTLC_S2_RSG", "5.75.fcs"), "B530-H")
+MD_RTLC_20_RSG <- process(here("data", "MetDistRA21", "20210705_RTLC_S2_RSG", "6.25.fcs"), "B530-H")
+MD_RTLC_21_RSG <- process(here("data", "MetDistRA21", "20210705_RTLC_S2_RSG", "6.75.fcs"), "B530-H")
+MD_RTLC_22_RSG <- process(here("data", "MetDistRA21", "20210705_RTLC_S2_RSG", "7.25.fcs"), "B530-H")
+MD_RTLC_23_RSG <- process(here("data", "MetDistRA21", "20210705_RTLC_S2_RSG", "7.75.fcs"), "B530-H")
+MD_RTLC_24_RSG <- process(here("data", "MetDistRA21", "20210705_RTLC_S2_RSG", "8.25.fcs"), "B530-H")
 
-colnames(MD_RSG) <- c("MD_RTLC_01", "MD_RTLC_02", "MD_RTLC_03", "MD_RTLC_04", "MD_RTLC_05", "MD_RTLC_06", "MD_RTLC_07", "MD_RTLC_08", "MD_RTLC_09", "MD_RTLC_10")
+MD_RSG <- as.data.frame(MD_RTLC_01_RSG$RSG_ab)
+MD_RSG <- cbindX(MD_RSG, as.data.frame(MD_RTLC_02_RSG$RSG_ab), as.data.frame(MD_RTLC_03_RSG$RSG_ab), as.data.frame(MD_RTLC_04_RSG$RSG_ab), as.data.frame(MD_RTLC_05_RSG$RSG_ab), as.data.frame(MD_RTLC_06_RSG$RSG_ab), as.data.frame(MD_RTLC_07_RSG$RSG_ab), as.data.frame(MD_RTLC_08_RSG$RSG_ab), as.data.frame(MD_RTLC_09_RSG$RSG_ab), as.data.frame(MD_RTLC_10_RSG$RSG_ab), as.data.frame(MD_RTLC_11_RSG$RSG_ab), as.data.frame(MD_RTLC_12_RSG$RSG_ab), as.data.frame(MD_RTLC_13_RSG$RSG_ab), as.data.frame(MD_RTLC_14_RSG$RSG_ab), as.data.frame(MD_RTLC_15_RSG$RSG_ab), as.data.frame(MD_RTLC_16_RSG$RSG_ab), as.data.frame(MD_RTLC_17_RSG$RSG_ab), as.data.frame(MD_RTLC_18_RSG$RSG_ab), as.data.frame(MD_RTLC_19_RSG$RSG_ab), as.data.frame(MD_RTLC_20_RSG$RSG_ab), as.data.frame(MD_RTLC_21_RSG$RSG_ab), as.data.frame(MD_RTLC_22_RSG$RSG_ab), as.data.frame(MD_RTLC_23_RSG$RSG_ab), as.data.frame(MD_RTLC_24_RSG$RSG_ab))
+
+colnames(MD_RSG) <- c("MD_RTLC_01", "MD_RTLC_02", "MD_RTLC_03", "MD_RTLC_04", "MD_RTLC_05", "MD_RTLC_06", "MD_RTLC_07", "MD_RTLC_08", "MD_RTLC_09", "MD_RTLC_10", "MD_RTLC_11", "MD_RTLC_12", "MD_RTLC_13", "MD_RTLC_14", "MD_RTLC_15", "MD_RTLC_16", "MD_RTLC_17", "MD_RTLC_18", "MD_RTLC_19", "MD_RTLC_20", "MD_RTLC_21", "MD_RTLC_22", "MD_RTLC_23", "MD_RTLC_24")
 
 write.csv(MD_RSG, here('data', 'MetDistRA21', 'MD_RSG.csv'))
 
 ```
 
-```{r}
+```{r, warnings= FALSE}
 MD_RTLC_01_ATP <- process_rac(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "A9_2.875Aa.fcs"), "B586-H")
 MD_RTLC_02_ATP <- process_rac(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "C9_3.25Aa.fcs"), "B586-H")
 MD_RTLC_03_ATP <- process_rac(here("data", "MetDistRA21", "20210729_RTLC_S3_SYBR_RSG_ATP", "E9_3.875Aa.fcs"), "B586-H")
@@ -268,12 +284,12 @@ write.csv(MD_ATP, here('data', 'MetDistRA21', 'MD_ATP.csv'))
 
 ```{r}
 Samples <- read.csv(here("data","MetDistRA21", "MetDistRA21_Samples.csv"))
-Chemostat_CPM <- read.csv(here("data", "MetDistRA21","20210729_RTLC_S3_SYBR_RSG_ATP","20210723_RTLC_S3_BP.csv"), header = FALSE)
+RTLC_CPM <- read.csv(here("data", "MetDistRA21", "RTLC_BP.csv"), header = FALSE)
 UL_CPM <- read.csv(here("data", "MetDistRA21", "20210825_ULRG_SYBR_RSG_ATP", "20210825_ULRG_BP.csv"), header = FALSE)
-Samples <- as.data.frame(BP_fxn(Chemostat_CPM, Samples, "RTLC"))
+Samples <- as.data.frame(BP_fxn(RTLC_CPM, Samples, "RTLC"))
 Samples <- as.data.frame(BP_fxn(UL_CPM, Samples, "UL_RG"))
 Samples <- subset(Samples, select = -c(DPM, DPMKills, MLeu, ugCLhr))
-Samples$dist <- c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 0, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325)
+Samples$dist <- c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 0, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325)
 
 write.csv(Samples, here('data', 'MetDistRA21', 'MD_meta.csv'))
 ```
@@ -357,7 +373,7 @@ write.csv(MD_ULRG_RSG, here('data', 'MetDistRA21', 'MD_ULRG_RSG.csv'))
 #Fits Pareto distributions for all RSG datasets - Adds Set and BP to dataframe with shape and scale parameters
 
 ```{r}
-met <- list(MD_ULRG_01_A, MD_ULRG_02_A, MD_ULRG_03_A, MD_ULRG_04_A, MD_ULRG_05_A, MD_ULRG_06_A, MD_ULRG_07_A, MD_ULRG_08_A, MD_ULRG_09_A, MD_ULRG_10_A, MD_ULRG_11_A, MD_ULRG_12_A, MD_ULRG_13_A, MD_ULRG_14_A, MD_ULRG_01_B, MD_ULRG_02_B, MD_ULRG_03_B, MD_ULRG_04_B, MD_ULRG_05_B, MD_ULRG_06_B, MD_ULRG_07_B, MD_ULRG_08_B, MD_ULRG_09_B, MD_ULRG_10_B, MD_ULRG_11_B, MD_ULRG_12_B, MD_ULRG_13_B, MD_ULRG_14_B, MD_RTLC_01_RSG, MD_RTLC_02_RSG, MD_RTLC_03_RSG, MD_RTLC_04_RSG, MD_RTLC_05_RSG, MD_RTLC_06_RSG, MD_RTLC_07_RSG, MD_RTLC_08_RSG, MD_RTLC_09_RSG, MD_RTLC_10_RSG)
+met <- list(MD_ULRG_01_A, MD_ULRG_02_A, MD_ULRG_03_A, MD_ULRG_04_A, MD_ULRG_05_A, MD_ULRG_06_A, MD_ULRG_07_A, MD_ULRG_08_A, MD_ULRG_09_A, MD_ULRG_10_A, MD_ULRG_11_A, MD_ULRG_12_A, MD_ULRG_13_A, MD_ULRG_14_A, MD_ULRG_01_B, MD_ULRG_02_B, MD_ULRG_03_B, MD_ULRG_04_B, MD_ULRG_05_B, MD_ULRG_06_B, MD_ULRG_07_B, MD_ULRG_08_B, MD_ULRG_09_B, MD_ULRG_10_B, MD_ULRG_11_B, MD_ULRG_12_B, MD_ULRG_13_B, MD_ULRG_14_B, MD_RTLC_01_RSG, MD_RTLC_02_RSG, MD_RTLC_03_RSG, MD_RTLC_04_RSG, MD_RTLC_05_RSG, MD_RTLC_06_RSG, MD_RTLC_07_RSG, MD_RTLC_08_RSG, MD_RTLC_09_RSG, MD_RTLC_10_RSG, MD_RTLC_11_RSG, MD_RTLC_12_RSG, MD_RTLC_13_RSG, MD_RTLC_14_RSG, MD_RTLC_15_RSG, MD_RTLC_16_RSG, MD_RTLC_17_RSG, MD_RTLC_18_RSG, MD_RTLC_19_RSG, MD_RTLC_20_RSG, MD_RTLC_21_RSG, MD_RTLC_22_RSG, MD_RTLC_23_RSG, MD_RTLC_24_RSG)
 
 pareto_para <- data.frame()
 
@@ -366,7 +382,7 @@ for(x in met){
   pareto_para <- Pareto(x, pareto_para)
 }
 
-samples <- c("MD_UL_01", "MD_UL_02", "MD_UL_03", "MD_UL_04", "MD_UL_05", "MD_UL_06", "MD_UL_07", "MD_UL_08", "MD_UL_09", "MD_UL_10", "MD_UL_11", "MD_UL_12", "MD_UL_13", "MD_UL_14","MD_UL_01", "MD_UL_02", "MD_UL_03", "MD_UL_04", "MD_UL_05", "MD_UL_06", "MD_UL_07", "MD_UL_08", "MD_UL_09", "MD_UL_10", "MD_UL_11", "MD_UL_12", "MD_UL_13", "MD_UL_14", "MD_RTLC_01", "MD_RTLC_02", "MD_RTLC_03", "MD_RTLC_04", "MD_RTLC_05", "MD_RTLC_06", "MD_RTLC_07", "MD_RTLC_08", "MD_RTLC_09", "MD_RTLC_10")
+samples <- c("MD_UL_01", "MD_UL_02", "MD_UL_03", "MD_UL_04", "MD_UL_05", "MD_UL_06", "MD_UL_07", "MD_UL_08", "MD_UL_09", "MD_UL_10", "MD_UL_11", "MD_UL_12", "MD_UL_13", "MD_UL_14","MD_UL_01", "MD_UL_02", "MD_UL_03", "MD_UL_04", "MD_UL_05", "MD_UL_06", "MD_UL_07", "MD_UL_08", "MD_UL_09", "MD_UL_10", "MD_UL_11", "MD_UL_12", "MD_UL_13", "MD_UL_14", "MD_RTLC_01", "MD_RTLC_02", "MD_RTLC_03", "MD_RTLC_04", "MD_RTLC_05", "MD_RTLC_06", "MD_RTLC_07", "MD_RTLC_08", "MD_RTLC_09", "MD_RTLC_10", "MD_RTLC_11", "MD_RTLC_12", "MD_RTLC_13", "MD_RTLC_14", "MD_RTLC_15", "MD_RTLC_16", "MD_RTLC_17", "MD_RTLC_18", "MD_RTLC_19", "MD_RTLC_20", "MD_RTLC_21", "MD_RTLC_22", "MD_RTLC_23", "MD_RTLC_24")
 met_samples <- data.frame(samples, pareto_para)
 names(met_samples) <- c("Sample", "shape", "scale")
 
@@ -375,6 +391,7 @@ for(x in met_samples$Sample){
   met_samples$uMChr[met_samples$Sample == x] <- Samples$uMChr[Samples$Sample == x]
 }
 
+met_samples$Tau <- c(NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, 2.875, 3.25, 3.875, 4.125, 4.125, 4.625, 4.875, 5.125, 5.375, 5.625, 1.75, 2.25, 2.75, 3.25, 3.75, 4.25, 4.75, 5.25, 5.75, 6.25, 6.75, 7.25, 7.75, 8.25)
 ```
 
 #Plots shape and scale parameters vs. BP for ULRG dataset
@@ -409,7 +426,62 @@ ggsave("../output/ULRG_met_scale_BP.png")
 
 
 ```
+#RTLC only
 
+```{r}
+hist_MD_RTLC <- ggplot(MD_RTLC_07_RSG, aes(x = RSG_ab, after_stat(density)))+
+  geom_histogram(color = "blue", fill = alpha("blue", 0.3), bins = 50)
+  xlab("RSG intensity")
+
+hist_MD_RTLC
+
+ggsave("../output/RTLC_met_hist.pdf")
+ggsave("../output/RTLC_met_hist.png")
+
+
+
+shape <- ggplot(subset(met_samples, met_samples$Set == "RTLC"), aes(x = shape, y = uMChr))+
+  geom_point(size = 2, alpha = 0.6)+
+  xlab(expression(paste("Shape parameter (", alpha, ")")))+
+  ylab(expression(paste("Bacterial Production (", mu, "M C/hr)")))+
+  geom_smooth(method = "lm", formula = y~x)+
+  stat_poly_eq(aes(label =  paste(stat(rr.label), "*\" and \"*", stat(p.value.label), sep = "")),
+               formula = y~x, parse = TRUE, size = 4)
+
+shape
+
+ggsave("../output/RTLC_met_shape_BP.pdf")
+ggsave("../output/RTLC_met_shape_BP.png")
+
+tau_shape <- ggplot(subset(met_samples, met_samples$Set == "RTLC"), aes(x = Tau, y = shape))+
+  geom_point(size = 2, alpha = 0.6)+
+  xlab(expression(paste(tau)))+
+  ylab(expression(paste("Shape parameter (", alpha, ")")))+
+  geom_smooth(method = "lm", formula = y~x)+
+  stat_poly_eq(aes(label =  paste(stat(rr.label), "*\" and \"*", stat(p.value.label), sep = "")),
+               formula = y~x, parse = TRUE, size = 4)
+
+tau_shape
+
+ggsave("../output/RTLC_met_tau_shape.pdf")
+ggsave("../output/RTLC_met_tau_shape.png")
+
+
+scale <- ggplot(subset(met_samples, met_samples$Set == "RTLC"), aes(x = scale, y = uMChr))+
+  geom_point(size = 2, alpha = 0.6)+
+  xlab(expression(paste("Scale parameter (", chi[m], ")")))+
+  ylab(expression(paste("Bacterial Production (", mu, "M C/hr)")))+
+  geom_smooth(method = "lm", formula = y~x)+
+  stat_poly_eq(aes(label =  paste(stat(rr.label), "*\" and \"*", stat(p.value.label), sep = "")),
+               formula = y~x, parse = TRUE, size = 4)
+
+scale
+
+ggsave("../output/RTLC_met_scale_BP.pdf")
+ggsave("../output/RTLC_met_scale_BP.png")
+
+
+```
 
 ```{r}
 pareto <- function(x, shape, scale){
@@ -432,7 +504,7 @@ ggsave("../output/ULRG_met_hist.png")
 
 #MD_ULRG_14
 
-x <- 0:100000
+x <- 1:100000
 y <- pareto(x, 0.9160702, 87.33069)
 
 fit <- as.data.frame(x)
@@ -444,10 +516,12 @@ hist <- hist(MD_ULRG_14_A$RSG_ab, breaks = 50)
 hist_df <- as.data.frame(hist$mids)
 hist_df$density <- hist$density
 
+log(fit$x)
+
 MD_ULRG_14 <- ggplot(hist_df, aes(x = log(hist$mids), y = log(density)))+
-  geom_line(color = "blue")+
-#  geom_smooth(method = "lm", formula = y~x)+
+  geom_point(color = "blue")+
   geom_line(data = fit, color = "red", aes(x = log(x), y = log(y)))+
+  xlim(c(6,12))+
   xlab("log(RSG intensity)")+
   ylab("log(density)")+
   ggtitle("ULRG_14 - more even")
@@ -461,7 +535,7 @@ ggsave("../output/ULRG_met_fit_14.png")
 
 #MD_ULRG_06
 
-x <- 0:100000
+x <- 1:100000
 y <- pareto(x, 1.3082674, 169.23152)
 
 fit <- as.data.frame(x)
@@ -474,9 +548,9 @@ hist_df <- as.data.frame(hist$mids)
 hist_df$density <- hist$density
 
 MD_ULRG_06 <- ggplot(hist_df, aes(x = log(hist$mids), y = log(density)))+
-  geom_line(color = "blue")+
-#  geom_smooth(method = "lm", formula = y~x)+
+  geom_point(color = "blue")+
   geom_line(data = fit, color = "red", aes(x = log(x), y = log(y)))+
+  xlim(c(6,12))+
   xlab("log(RSG intensity)")+
   ylab("log(density)")+
   ggtitle("ULRG_06 - more skewed")
