@@ -1,0 +1,4 @@
+20210705_RTLC_S2_RSG_300.ncf --> P1 exported
+
+Manually added a FSC-H 300 threshold to match other datasets and added P1 gate to match where we know that SYBR cutoffs show cells
+No SYBR in this dataset but the data looks similar enough to the other two that the SYBR gating from the others fit even without the SYBR data.
