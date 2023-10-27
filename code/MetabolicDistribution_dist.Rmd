@@ -19,9 +19,9 @@ for (package in package.list) {
     library(package, character.only=T)
   } }
 
-BiocManager::valid()
-BiocManager::install("flowCore")
-BiocManager::install("ggcyto")
+#BiocManager::valid()
+#BiocManager::install("flowCore")
+#BiocManager::install("ggcyto")
 BiocManager::install()
 ```
 
@@ -110,15 +110,19 @@ processmultiple <- function(x = "", channel = "", scale = "", name = "", desc = 
 ```{r}
 process <- function(x = "", channel = "", scale = ""){
   if(scale == TRUE){
-    fcs <- flowCore::read.FCS(file = x, transformation = "scale")
+    fcs <- flowCore::read.FCS(file = x, transformation = "scale", truncate_max_range = FALSE)
   }
   else{
-    fcs <- flowCore::read.FCS(file = x)
+    fcs <- flowCore::read.FCS(file = x, truncate_max_range = FALSE)
   }
   flow <- flowCore::exprs(fcs)
   RSG_H <- as.data.frame(flow[,channel])
-  rac <- RAC(x = RSG_H)
-  return(rac)
+  RSG_H <- unlist(RSG_H)
+#  rac <- RAC(x = RSG_H)
+#  return(rac)
+  
+  RSG_ab = RSG_H[RSG_H >0]
+  return(as.data.frame(RSG_ab))
 }
 ```
 
@@ -183,10 +187,10 @@ JR_100_ATP_1 <- process(here("data","MetDistRA21", "20210713_JR_Titration_RSG_AT
 JR_10_ATP_1 <- process(here("data","MetDistRA21", "20210713_JR_Titration_RSG_ATP", "D5_JR_10_ATP_1.fcs"), "B586-H")
 JR_1_ATP_1 <- process(here("data","MetDistRA21", "20210713_JR_Titration_RSG_ATP", "A6_JR_1_ATP_1.fcs"), "B586-H")
 
-JR_1_ATP_10_CD <- CDist(JR_1_ATP_10[,2])
-JR_1_ATP_5_CD <- CDist(JR_1_ATP_5[,2])
-JR_1_ATP_1_CD <- CDist(JR_1_ATP_1[,2])
-JR_1_CD <- CDist(JR_1_ATP_Un[,2])
+JR_1_ATP_10_CD <- CDist(JR_1_ATP_10[,1])
+JR_1_ATP_5_CD <- CDist(JR_1_ATP_5[,1])
+JR_1_ATP_1_CD <- CDist(JR_1_ATP_1[,1])
+JR_1_CD <- CDist(JR_1_ATP_Un[,1])
                   
 
 plot(JR_1_CD[,2], JR_1_CD[,1], type = 'p', xlab = "", ylab = "", cex = 0.25, col = "red", yaxt = "n", xaxt = "n")
@@ -199,29 +203,29 @@ axis(2, at = c(0,20,40,60,80,100), labels = c("0","20","40","60","80","100"), ce
 axis(1, cex.axis = 0.7, mgp = c(3,0.5,0), at = c(0,20,40,60,80,100), labels = TRUE)
 
 
-JR_ATP <- ggplot(JR_100_ATP_Un, aes(x = log(rac), color = "100", fill = "Unstained"))+
+JR_ATP <- ggplot(JR_100_ATP_Un, aes(x = log(RSG_ab), color = "100", fill = "Unstained"))+
   geom_histogram(binwidth = 0.25)+
-  geom_histogram(data = JR_10_ATP_Un, aes(x = log(rac), color = "10", fill = "Unstained"),
+  geom_histogram(data = JR_10_ATP_Un, aes(x = log(RSG_ab), color = "10", fill = "Unstained"),
                  binwidth = 0.25)+
-  geom_histogram(data = JR_1_ATP_Un, aes(x = log(rac), color = "1", fill = "Unstained"),
+  geom_histogram(data = JR_1_ATP_Un, aes(x = log(RSG_ab), color = "1", fill = "Unstained"),
                  binwidth = 0.25)+
-  geom_histogram(data = JR_100_ATP_10, aes(x = log(rac), color = "100", fill = "Stained"),
+  geom_histogram(data = JR_100_ATP_10, aes(x = log(RSG_ab), color = "100", fill = "Stained"),
                  binwidth = 0.25)+
-  geom_histogram(data = JR_10_ATP_10, aes(x = log(rac), color = "10", fill = "Stained"),
+  geom_histogram(data = JR_10_ATP_10, aes(x = log(RSG_ab), color = "10", fill = "Stained"),
                  binwidth = 0.25)+
-  geom_histogram(data = JR_1_ATP_10, aes(x = log(rac), color = "1", fill = "Stained"),
+  geom_histogram(data = JR_1_ATP_10, aes(x = log(RSG_ab), color = "1", fill = "Stained"),
                  binwidth = 0.25)+
-  geom_histogram(data = JR_100_ATP_5, aes(x = log(rac), color = "100", fill = "Stained"),
+  geom_histogram(data = JR_100_ATP_5, aes(x = log(RSG_ab), color = "100", fill = "Stained"),
                  binwidth = 0.25)+
-  geom_histogram(data = JR_10_ATP_5, aes(x = log(rac), color = "10", fill = "Stained"),
+  geom_histogram(data = JR_10_ATP_5, aes(x = log(RSG_ab), color = "10", fill = "Stained"),
                  binwidth = 0.25)+
-  geom_histogram(data = JR_1_ATP_5, aes(x = log(rac), color = "1", fill = "Stained"),
+  geom_histogram(data = JR_1_ATP_5, aes(x = log(RSG_ab), color = "1", fill = "Stained"),
                  binwidth = 0.25)+
-  geom_histogram(data = JR_100_ATP_1, aes(x = log(rac), color = "100", fill = "Stained"),
+  geom_histogram(data = JR_100_ATP_1, aes(x = log(RSG_ab), color = "100", fill = "Stained"),
                  binwidth = 0.25)+
-  geom_histogram(data = JR_10_ATP_1, aes(x = log(rac), color = "10", fill = "Stained"),
+  geom_histogram(data = JR_10_ATP_1, aes(x = log(RSG_ab), color = "10", fill = "Stained"),
                  binwidth = 0.25)+
-  geom_histogram(data = JR_1_ATP_1, aes(x = log(rac), color = "1", fill = "Stained"),
+  geom_histogram(data = JR_1_ATP_1, aes(x = log(RSG_ab), color = "1", fill = "Stained"),
                  binwidth = 0.25)+
   scale_color_manual("Legend Title", limits=c("100", "10", "1"), values = c("black","red", "blue"))+
   scale_fill_manual("Legend Title", limits=c("Unstained", "Stained"),
@@ -361,13 +365,14 @@ aa_rac_Ecoli_GC_4 <- process(here("data", "GrowthCurve", "EAM_20190531_GrowthCur
 aa_rac_Ecoli_GC_5 <- process(here("data", "GrowthCurve", "EAM_20190531_GrowthCurve", "Specimen1_T5_S.fcs"), "BL1-H")
 aa_rac_Ecoli_GC_6 <- process(here("data", "GrowthCurve", "EAM_20190531_GrowthCurve", "Specimen1_T6_S.fcs"), "BL1-H")
 aa_rac_Ecoli_GC_7 <- process(here("data", "GrowthCurve", "EAM_20190531_GrowthCurve", "Specimen1_T7_S.fcs"), "BL1-H")
-aa_Cdist_Ecoli_GC_1 <- CDist(aa_rac_Ecoli_GC_1[,2])
-aa_Cdist_Ecoli_GC_2 <- CDist(aa_rac_Ecoli_GC_2[,2])
-aa_Cdist_Ecoli_GC_3 <- CDist(aa_rac_Ecoli_GC_3[,2])
-aa_Cdist_Ecoli_GC_4 <- CDist(aa_rac_Ecoli_GC_4[,2])
-aa_Cdist_Ecoli_GC_5 <- CDist(aa_rac_Ecoli_GC_5[,2])
-aa_Cdist_Ecoli_GC_6 <- CDist(aa_rac_Ecoli_GC_6[,2])
-aa_Cdist_Ecoli_GC_7 <- CDist(aa_rac_Ecoli_GC_7[,2])
+
+aa_Cdist_Ecoli_GC_1 <- CDist(RAC(x = unlist(aa_rac_Ecoli_GC_1$RSG_ab))[,2])
+aa_Cdist_Ecoli_GC_2 <- CDist(RAC(x = unlist(aa_rac_Ecoli_GC_2$RSG_ab))[,2])
+aa_Cdist_Ecoli_GC_3 <- CDist(RAC(x = unlist(aa_rac_Ecoli_GC_3$RSG_ab))[,2])
+aa_Cdist_Ecoli_GC_4 <- CDist(RAC(x = unlist(aa_rac_Ecoli_GC_4$RSG_ab))[,2])
+aa_Cdist_Ecoli_GC_5 <- CDist(RAC(x = unlist(aa_rac_Ecoli_GC_5$RSG_ab))[,2])
+aa_Cdist_Ecoli_GC_6 <- CDist(RAC(x = unlist(aa_rac_Ecoli_GC_6$RSG_ab))[,2])
+aa_Cdist_Ecoli_GC_7 <- CDist(RAC(x = unlist(aa_rac_Ecoli_GC_7$RSG_ab))[,2])
 
 ra_rac_Ecoli_GC_1 <- process(here("data", "GrowthCurve", "EAM_20190531_GrowthCurve", "Specimen1_T1_S.fcs"), "BL1-H", TRUE)
 ra_rac_Ecoli_GC_2 <- process(here("data", "GrowthCurve", "EAM_20190531_GrowthCurve", "Specimen1_T2_S.fcs"), "BL1-H", TRUE)
@@ -376,13 +381,13 @@ ra_rac_Ecoli_GC_4 <- process(here("data", "GrowthCurve", "EAM_20190531_GrowthCur
 ra_rac_Ecoli_GC_5 <- process(here("data", "GrowthCurve", "EAM_20190531_GrowthCurve", "Specimen1_T5_S.fcs"), "BL1-H", TRUE)
 ra_rac_Ecoli_GC_6 <- process(here("data", "GrowthCurve", "EAM_20190531_GrowthCurve", "Specimen1_T6_S.fcs"), "BL1-H", TRUE)
 ra_rac_Ecoli_GC_7 <- process(here("data", "GrowthCurve", "EAM_20190531_GrowthCurve", "Specimen1_T7_S.fcs"), "BL1-H", TRUE)
-ra_Cdist_Ecoli_GC_1 <- CDist(ra_rac_Ecoli_GC_1[,2])
-ra_Cdist_Ecoli_GC_2 <- CDist(ra_rac_Ecoli_GC_2[,2])
-ra_Cdist_Ecoli_GC_3 <- CDist(ra_rac_Ecoli_GC_3[,2])
-ra_Cdist_Ecoli_GC_4 <- CDist(ra_rac_Ecoli_GC_4[,2])
-ra_Cdist_Ecoli_GC_5 <- CDist(ra_rac_Ecoli_GC_5[,2])
-ra_Cdist_Ecoli_GC_6 <- CDist(ra_rac_Ecoli_GC_6[,2])
-ra_Cdist_Ecoli_GC_7 <- CDist(ra_rac_Ecoli_GC_7[,2])
+ra_Cdist_Ecoli_GC_1 <- CDist(RAC(x = unlist(ra_rac_Ecoli_GC_1$RSG_ab))[,2])
+ra_Cdist_Ecoli_GC_2 <- CDist(RAC(x = unlist(ra_rac_Ecoli_GC_2$RSG_ab))[,2])
+ra_Cdist_Ecoli_GC_3 <- CDist(RAC(x = unlist(ra_rac_Ecoli_GC_3$RSG_ab))[,2])
+ra_Cdist_Ecoli_GC_4 <- CDist(RAC(x = unlist(ra_rac_Ecoli_GC_4$RSG_ab))[,2])
+ra_Cdist_Ecoli_GC_5 <- CDist(RAC(x = unlist(ra_rac_Ecoli_GC_5$RSG_ab))[,2])
+ra_Cdist_Ecoli_GC_6 <- CDist(RAC(x = unlist(ra_rac_Ecoli_GC_6$RSG_ab))[,2])
+ra_Cdist_Ecoli_GC_7 <- CDist(RAC(x = unlist(ra_rac_Ecoli_GC_7$RSG_ab))[,2])
 
 OD600_Ecoli_GC <- read.table(here("data", "GrowthCurve", "EAM_20190531_GrowthCurve", "20190531_EAM_GrowthCurve.txt"), header = TRUE, sep = "\t")
 
