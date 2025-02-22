@@ -1,0 +1,85 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-11-12"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+#create a markov chain: set p as prob to take a step and 1-p=q as prob to stay put
+p=.7
+q=1-p
+m<-matrix(c(q,p,0,0,0,0,q,p,0,0,0,0,q,p,0,0,0,0,q,p,0,0,0,0,1),5,5,byrow = T)
+m
+
+cumsum(m[,])
+
+?tail
+
+tail(c(1,3,4,3),1)
+
+#take a step
+stepper<-function(h){
+cur<-tail(h,1)
+z<-runif(1)
+new<-min(which(z<=cumsum(m[cur,])))
+return(new)
+}
+
+#build a path of steps
+path<-function(p){
+last=1
+i<-0
+while(last<5 & i<10000){
+p<-c(p,stepper(p))
+last=tail(p,1)
+i=i+1
+}
+return(p)
+}
+
+#test it
+path(1)
+
+test <- fitdist(len, "gamma")
+test2 <- fitdist(len, "lnorm")
+
+#do it a million times
+ans<-list()
+for(j in 1:100000)ans[[j]]<-path(1)
+len<-sapply(ans,length) #subtract for to bring the smallest path possible from 5 to 1
+hist(len,freq=F, xlim=c(0.5,19.5), breaks = c(seq(0.5,19.5,1)))
+mean(log(len))
+sd(log(len))
+#curve(dlnorm(x,mean(log(len)),sd(log(len))),from=0,to=20,add=T)
+curve(dgamma(x, shape = test$estimate[1], rate = test$estimate[2]), from =0, to = 20, add = T, col = "blue")
+curve(dlnorm(x, meanlog = test2$estimate[1], sdlog = test2$estimate[2]), from = 0, to = 20, add = T, col = "green")
+curve((factorial(x-2)/(factorial(s-2)*factorial((x-2)-(s-2))))*(p^(s-1))*(q^(x-s)), from=3, to =20, add = T, col = "red")
+curve((((8*p)^(x))*(exp(-(8*p))))/(factorial(x)), from = 0, to = 20, add = T, col = "black")
+
+1000000*p
+x <- seq(from = 0, to = 10, by = 1)
+y <- ((4*p)^x)*(exp(-(4*p)))/(factorial(x))
+
+plot(y ~ x)
+
+#create new distribution summing each group of n lengths
+n=5
+foo<-rep((1:(1000000/5)),each=n)
+gamma_maybe<-tapply(len,foo,sum)
+hist(gamma_maybe)
+```
+
+## Including Plots
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
