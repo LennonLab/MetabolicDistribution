@@ -10,21 +10,43 @@ RAC <- function(x = ""){
 }
 
 Pareto <- function(x = "", pareto_para = ""){
-  pareto <- fitdist(x[,1], "pareto", start = list(shape = 0.1, scale = 10))
+#  pareto <- fitdist(subset(x, x[,"RSG_ab"] > 12000)[,"RSG_ab"], "pareto", start = list(shape = 0.1, scale = 10))
+  pareto <- fitdist(x[,"RSG_ab"], "pareto", start = list(shape = 0.1, scale = 10))
   pareto_para <- rbind(pareto_para, c(pareto$estimate[1], pareto$estimate[2]))
   return(pareto_para)
 }
 
 Gamma <- function(x = "", gamma_para = ""){
-  gamma <- fitdist(x[,1], "gamma", start = list(shape = 0.1, scale = 10))
+#  gamma <- fitdist(subset(x, x[,"RSG_ab"] > 12000)[,"RSG_ab"], "gamma", start = list(shape = 0.1, scale = 10))
+  gamma <- fitdist(x[,"RSG_ab"], "gamma", start = list(shape = 0.1, scale = 10))
   gamma_para <- rbind(gamma_para, c(gamma$estimate[1], gamma$estimate[2]))
   return(gamma_para)
 }
 
 Lognorm <- function(x = "", lnorm_para = ""){
-  lnorm <- fitdist(x[,1], "lnorm")
+#  lnorm <- fitdist(subset(x, x[,"RSG_ab"] > 12000)[,"RSG_ab"], "lnorm")
+  lnorm <- fitdist(x[,"RSG_ab"], "lnorm")
   lnorm_para <- rbind(lnorm_para, c(lnorm$estimate[1], lnorm$estimate[2]))
   return(lnorm_para)
+}
+
+Weibull <- function(x = "", weibull_para = ""){
+#  weibull <- fitdist(subset(x, x[,"RSG_ab"] > 12000)[,"RSG_ab"], "weibull", start = list(shape = 0.1))
+  weibull <- fitdist(x[,"RSG_ab"], "weibull", start = list(shape = 0.1))
+  weibull_para <- rbind(weibull_para, c(weibull$estimate[1]))
+  return(weibull_para)
+}
+
+Exp <- function(x = "", exp_para = ""){
+  exp <- fitdist(subset(x, x[,"RSG_ab"] > 3000)[,"RSG_ab"], "exp")
+  exp_para <- rbind(exp_para, c(exp$estimate[1]))
+  return(exp_para)
+}
+
+Norm <- function(x = "", norm_para = ""){
+  norm <- fitdist(subset(x, x[,"RSG_ab"] > 3000)[,"RSG_ab"], "norm")
+  norm_para <- rbind(norm_para, c(norm$estimate[1], norm$estimate[1]))
+  return(norm_para)
 }
 
 process <- function(x = "", channel = "", scale = ""){
@@ -146,6 +168,10 @@ CDist <- function(x = ""){
   
 }
 
+scientific_10_nonlog <- function(x) {
+  parse(text=gsub("e[+]?", " %*% 10^", scientific_format()(x)))
+}
+
 scientific_10 <- function(x) {
   x <- 10^x
   parse(text=gsub("e[+]?", " %*% 10^", scientific_format()(x)))
@@ -177,4 +203,16 @@ SimpE.cal <- function(x = ""){
   D <- diversity(x, index = "inv")
   E <- (D)/S
   return(E)
+}
+
+dexpweibull <- function(x, alpha, shape, scale, log = FALSE) {
+  fx <- (alpha / scale) * (shape / scale) * (x / scale)^(shape - 1) * 
+    exp(- (x / scale)^shape) * (1 - exp(- (x / scale)^shape))^(alpha - 1)
+  if (log) return(log(fx))
+  return(fx)
+}
+
+qexpweibull <- function(p, alpha, shape, scale) {
+  if (any(p < 0 | p > 1)) stop("p must be in [0,1]")
+  scale * (-log(1 - p^(1/alpha)))^(1/shape)
 }

@@ -1,0 +1,149 @@
+---
+title: "Species_metdist"
+author: "Emmi Mueller"
+date: "2025-04-16"
+output: pdf_document
+---
+
+```{r setup, echo=FALSE}
+rm(list=ls())
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE,
+  tidy.opts = list(width.cutoff = 60),
+  tidy = TRUE)
+```
+
+```{r}
+library(ggplot2)
+library(scales)
+library(actuar)
+```
+
+```{r figure_setup}
+my.cols <- RColorBrewer::brewer.pal(n = 4, name = "Greys")[3:4]
+
+# Set theme for figures in the paper
+theme_set(theme_classic() + 
+  theme(axis.title = element_text(size = 16),
+        axis.title.x = element_text(margin = margin(t = 15, b = 15)),
+        axis.title.y = element_text(margin = margin(l = 15, r = 15)),
+        axis.text = element_text(size = 13),
+        axis.text.x = element_text(margin = margin(t = 5)),
+        axis.text.y = element_text(margin = margin(r = 5)),
+        #axis.line.x = element_line(linewidth = 1),
+        #axis.line.y = element_line(linewidth = 1),
+        axis.line.x = element_blank(),
+        axis.line.y = element_blank(),
+        axis.ticks.x = element_line(linewidth = 1),
+        axis.ticks.y = element_line(linewidth = 1),
+        axis.ticks.length = unit(.1, "in"),
+        panel.border = element_rect(color = "black", fill = NA, linewidth = 1.5),
+        legend.text = element_text(size = 14),
+        strip.text = element_text(size = 14),
+        strip.background = element_blank()
+        ))
+```
+
+```{r}
+scientific_10_nonlog <- function(x) {
+  parse(text=gsub("e[+]?", " %*% 10^", scientific_format()(x)))
+}
+
+scientific_10 <- function(x) {
+  x <- 10^x
+  parse(text=gsub("e[+]?", " %*% 10^", scientific_format()(x)))
+}
+```
+
+```{r}
+sum(MD_ULRG_13_A$RSG_ab)
+
+tot <- 1e15
+
+#sp_metdist <- data.frame("Species" = NA, "N" = NA, "Act" = NA)
+sp_metdist_tot <- data.frame("Species" = NA, "N" = NA, "Act" = NA)
+
+species <- 1
+while(tot > 0){
+  N <- rlnorm(1, meanlog = 1.8, sdlog = 1.9)
+  act <- rlnorm(N, meanlog = runif(1, min = 8, max = 12), sdlog = runif(1, min = 0.5, max = 2.5))
+  print(sum(act))
+  tot <- tot - sum(act)
+  species <- species + 1
+#  sp_metdist <- rbind(sp_metdist, cbind("Species" = rep(species, N), "N" = rep(N, N), "Act" = act))
+  sp_metdist_tot <- rbind(sp_metdist_tot, cbind("Species" = rep(species, N), "N" = rep(N, N), "Act" = act))
+  if(species%%100 == 0){
+    print(species)
+  }
+}
+
+ggplot()+
+  geom_histogram(data = sp_metdist, aes(x = Act, y = ..density..), fill = alpha("red", 0.25))+
+  geom_histogram(data = sp_metdist_tot, aes(x = Act, y = ..density..), fill = alpha("blue", 0.25))+
+  xlab("Metabolic activity")+
+  ylab("Density")+
+  scale_x_continuous(labels = scientific_10_nonlog)+
+  scale_y_continuous(labels = scientific_10_nonlog)
+
+ggplot()+
+  geom_point(data = sp_metdist, aes(x = log(N, 10), y = Act), color = alpha("red", 0.5))+
+  geom_point(data = sp_metdist_tot, aes(x = log(N, 10), y = Act), color = alpha("blue", 0.5))+
+  xlab("Species abundance")+
+  ylab("Individual metabolic activity")+
+  scale_x_continuous(labels = label_math(expr = 10^.x, format = force))
+```
+
+```{r}
+act <- data.frame("Act" = runif(5000, 0, 1e6))
+
+ggplot(data = act, aes(x = Act))+
+  geom_histogram(aes(y = ..density..))+
+  xlab("Metabolic activity")+
+  ylab("Density")+
+  scale_x_continuous(labels = scientific_10_nonlog)+
+  scale_y_continuous(labels = scientific_10_nonlog)+
+  theme(axis.text.x = element_blank(), axis.text.y = element_blank(), axis.ticks.x = element_blank(), axis.ticks.y = element_blank())
+
+ggsave("../output/Uniform.png", width = 4, height = 3)
+
+
+act <- data.frame("Act" = c(rnorm(2500, 10^0.5, 10^3.5), rnorm(2500, 10^4.2, 10^3.5)))
+
+ggplot(data = act, aes(x = Act))+
+  geom_histogram(aes(y = ..density..), bins = 100)+
+  xlab("Metabolic activity")+
+  ylab("Density")+
+  scale_x_continuous(labels = scientific_10_nonlog)+
+  scale_y_continuous(labels = scientific_10_nonlog)+
+  theme(axis.text.x = element_blank(), axis.text.y = element_blank(), axis.ticks.x = element_blank(), axis.ticks.y = element_blank())
+
+ggsave("../output/Bimodal.png", width = 4, height = 3)
+
+act <- data.frame("Act" = c(rnorm(5000, 10^4.2, 10^3.5)))
+
+ggplot(data = act, aes(x = Act))+
+  geom_histogram(aes(y = ..density..), bins = 100)+
+  xlab("Metabolic activity")+
+  ylab("Density")+
+  scale_x_continuous(labels = scientific_10_nonlog)+
+  scale_y_continuous(labels = scientific_10_nonlog)+
+  theme(axis.text.x = element_blank(), axis.text.y = element_blank(), axis.ticks.x = element_blank(), axis.ticks.y = element_blank())
+
+ggsave("../output/Normal.png", width = 4, height = 3)
+
+act <- data.frame("Act" = rpareto(5000, 10, 100000))
+
+ggplot(data = act, aes(x = Act))+
+  geom_histogram(aes(y = ..density..), bins = 100)+
+  xlab("Metabolic activity")+
+  ylab("Density")+
+  scale_x_continuous(labels = scientific_10_nonlog)+
+  scale_y_continuous(labels = scientific_10_nonlog)+
+  theme(axis.text.x = element_blank(), axis.text.y = element_blank(), axis.ticks.x = element_blank(), axis.ticks.y = element_blank())
+
+ggsave("../output/Pareto.png", width = 4, height = 3)
+```
